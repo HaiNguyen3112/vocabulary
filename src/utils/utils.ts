@@ -7,3 +7,14 @@ export const shuffleArray = <T>(array: T[]): T[] => {
   }
   return newArray;
 };
+
+// Function to speech a word
+export const speakText = (text: string, lang: string = "en-US"): void => {
+  if (window.speechSynthesis) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    window.speechSynthesis.speak(utterance);
+  } else {
+    alert("Sorry, your browser does not support speech synthesis.");
+  }
+};

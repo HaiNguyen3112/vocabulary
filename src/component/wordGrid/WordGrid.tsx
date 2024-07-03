@@ -2,11 +2,13 @@ import styles from "./WordGrid.module.scss";
 import { WordType, words } from "../../dummy-data/words";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
-import { shuffleArray } from "../../utils/utils";
+import { shuffleArray, speakText } from "../../utils/utils";
+import { Button } from "antd";
+import { ReloadOutlined } from "@ant-design/icons";
 
 type WordDisplayType = {
   id: string;
-  type: string;
+  type: "word" | "definition";
   content: string;
   codeMatch: string;
   isHide?: boolean;
@@ -14,11 +16,12 @@ type WordDisplayType = {
 
 type WordGridProp = {
   dataInit?: WordType[];
+  children?: React.ReactNode;
 };
 
 const QUANTITY_DISPLAY_WORD = 8;
 
-const WordGrid = ({ dataInit }: WordGridProp) => {
+const WordGrid = ({ dataInit, children }: WordGridProp) => {
   const [wordList, setWordList] = useState<WordDisplayType[]>([]);
   const [currentSelectedCode, setCurrentSelectedCode] =
     useState<WordDisplayType | null>(null);
@@ -70,31 +73,47 @@ const WordGrid = ({ dataInit }: WordGridProp) => {
     setWordList(combinedArray);
   };
 
+  const speechCorrectWord = (
+    currentSelectedCode: WordDisplayType,
+    selectedItem: WordDisplayType
+  ) => {
+    const wordToSpeech =
+      currentSelectedCode?.type === "word"
+        ? currentSelectedCode.content
+        : selectedItem.content;
+
+    speakText(wordToSpeech);
+  };
+
   const handleOnClickWord = (selectedItem: WordDisplayType) => {
     if (selectedItem.content === currentSelectedCode?.content) return;
 
     if (currentSelectedCode) {
       if (currentSelectedCode.codeMatch === selectedItem.codeMatch) {
         setQuantityMatch((prev) => prev + 1);
-
-        const elements = document.querySelectorAll(
-          `[data-code="${selectedItem.codeMatch}"]`
-        );
-        elements.forEach((element) => {
-          element.classList.add(styles.correct_cell);
-        });
+        // Speech correct word match
+        speechCorrectWord(currentSelectedCode, selectedItem);
 
         setTimeout(() => {
-          setWordList((prevList) =>
-            prevList.map((item) =>
-              item.codeMatch === selectedItem.codeMatch
-                ? { ...item, isHide: true }
-                : item
-            )
+          const elements = document.querySelectorAll(
+            `[data-code="${selectedItem.codeMatch}"]`
           );
-        }, 600);
+          elements.forEach((element) => {
+            element.classList.add(styles.correct_cell);
+          });
 
-        setCurrentSelectedCode(null);
+          setTimeout(() => {
+            setWordList((prevList) =>
+              prevList.map((item) =>
+                item.codeMatch === selectedItem.codeMatch
+                  ? { ...item, isHide: true }
+                  : item
+              )
+            );
+          }, 600);
+
+          setCurrentSelectedCode(null);
+        }, 200);
       } else {
         const elements1 = document.querySelector(
           `[data-id="${currentSelectedCode.id}"]`
@@ -124,25 +143,33 @@ const WordGrid = ({ dataInit }: WordGridProp) => {
 
   return (
     <div className={styles.grid_word_container}>
-      <button onClick={handleReloadList}>Reload list</button>
+      <div className={styles.btn_group}>
+        <Button onClick={handleReloadList} type="default">
+          <ReloadOutlined /> Reload list
+        </Button>
+        {children}
+      </div>
       <div className={styles.grid}>
-        {wordList.map((item) => (
-          <div
-            data-id={item.id}
-            data-code={item.codeMatch}
-            key={item.content}
-            className={`${styles.cell} ${
-              item.isHide ? styles.hidden_cell : ""
-            }`}
-            onClick={() => handleOnClickWord(item)}
-          >
+        {wordList?.length &&
+          wordList.map((item) => (
             <div
-              className={item.type === "word" ? styles.word : styles.definition}
+              data-id={item.id}
+              data-code={item.codeMatch}
+              key={item.content}
+              className={`${styles.cell} ${
+                item.isHide ? styles.hidden_cell : ""
+              }`}
+              onClick={() => handleOnClickWord(item)}
             >
-              {item.content}
+              <div
+                className={
+                  item.type === "word" ? styles.word : styles.definition
+                }
+              >
+                {item.content}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );
