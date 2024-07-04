@@ -1,9 +1,26 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useFileInput from "../../custom-hook/file-input/UseFileInput";
-import { WordType } from "../../dummy-data/words";
+import {
+  dinningoutVocabulary,
+  entertainmentVocabulary,
+  technologyVocabulary,
+  WordType,
+} from "../../dummy-data/words";
 import WordGrid from "../wordGrid/WordGrid";
-import { Button } from "antd";
+import { Button, Select } from "antd";
 import { FileExcelOutlined } from "@ant-design/icons";
+
+type SelectType = {
+  label: string;
+  value: "" | "TECHNOLOGY" | "DINNINGOUT" | "ENTERTAINMENT";
+};
+
+const initOption: SelectType[] = [
+  { label: "Select a topic ", value: "" },
+  { label: "Entertainment", value: "ENTERTAINMENT" },
+  { label: "Technology", value: "TECHNOLOGY" },
+  { label: "Dinning out", value: "DINNINGOUT" },
+];
 
 const VocabularyStudying = () => {
   const { data, handleFileUpload } = useFileInput<WordType>();
@@ -13,15 +30,50 @@ const VocabularyStudying = () => {
       inputRef.current.click();
     }
   };
+  const [currentSelect, setCurrentSelect] = useState<string>("");
+  console.log("currentSelect: ", currentSelect);
+  const [currentList, setCurrentList] = useState<WordType[]>([]);
+
+  useEffect(() => {
+    if (data?.length) {
+      setCurrentList(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    switch (currentSelect) {
+      case "":
+        data?.length && setCurrentList(data);
+        break;
+      case "ENTERTAINMENT":
+        setCurrentList(entertainmentVocabulary);
+        break;
+      case "TECHNOLOGY":
+        setCurrentList(technologyVocabulary);
+        break;
+      case "DINNINGOUT":
+        setCurrentList(dinningoutVocabulary);
+        break;
+
+      default:
+        setCurrentList(data);
+        break;
+    }
+  }, [currentSelect, data]);
 
   return (
     <>
-      <WordGrid dataInit={data}>
+      <WordGrid dataInit={currentList}>
         <Button onClick={handleOpenFile} type="primary">
           <FileExcelOutlined /> Upload file
         </Button>
+        <Select
+          options={initOption}
+          value={currentSelect}
+          onChange={(value) => setCurrentSelect(value)}
+        />
         <input
-          style={{ visibility: "hidden" }}
+          style={{ visibility: "hidden", display: "contents" }}
           ref={inputRef}
           type="file"
           onChange={handleFileUpload}

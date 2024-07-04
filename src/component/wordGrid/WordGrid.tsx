@@ -1,5 +1,5 @@
 import styles from "./WordGrid.module.scss";
-import { WordType, words } from "../../dummy-data/words";
+import { WordType, wordsInit } from "../../dummy-data/words";
 import { useEffect, useState } from "react";
 import { v4 as uuid } from "uuid";
 import { shuffleArray, speakText } from "../../utils/utils";
@@ -28,11 +28,12 @@ const WordGrid = ({ dataInit, children }: WordGridProp) => {
   const [quantityMatch, setQuantityMatch] = useState<number>(0);
 
   useEffect(() => {
-    let finalListWord = words;
+    let finalListWord = wordsInit;
     if (dataInit && dataInit.length > 0) {
       finalListWord = shuffleArray(dataInit).slice(0, QUANTITY_DISPLAY_WORD);
     }
     handleCreateShuffleList(finalListWord);
+    setQuantityMatch(0);
   }, [dataInit]);
 
   useEffect(() => {
@@ -165,9 +166,10 @@ const WordGrid = ({ dataInit, children }: WordGridProp) => {
                 className={
                   item.type === "word" ? styles.word : styles.definition
                 }
-              >
-                {item.content}
-              </div>
+                dangerouslySetInnerHTML={{
+                  __html: item.content.replace("\\n", "<br/>"),
+                }}
+              />
             </div>
           ))}
       </div>

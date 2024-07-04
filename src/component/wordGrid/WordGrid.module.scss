@@ -7,6 +7,7 @@
   justify-content: center;
   align-items: center;
   padding: 20px 0;
+
   .btn_group {
     max-width: 1000px;
     min-width: 864px;
@@ -15,6 +16,7 @@
     justify-content: start;
     column-gap: 10px;
   }
+
   .grid {
     max-height: 1000px;
     min-height: 600px;
@@ -32,23 +34,24 @@
   }
 
   .cell {
-    padding: 20px;
-    height: 100px;
+    padding: 5px;
     border: 1px solid #ccc;
     text-align: center;
     background-color: #f9f9f9;
     cursor: pointer;
     border-radius: 5px;
-    // :active {
-    //   border: 1px solid black;
-    // }
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word; /* Ensure long words break to the next line */
+    height: auto; /* Allow height to adjust based on content */
   }
+
   .word,
   .definition {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
     width: 100%;
     text-align: left;
   }
@@ -60,38 +63,69 @@
 
   .definition {
     color: blue;
+    justify-content: start;
   }
-}
 
-.hidden_cell {
-  visibility: hidden;
-}
-.correct_cell {
-  animation: changeColorCorrect 0.5s;
-}
-.wrong_cell {
-  animation: changeColorWrong 0.5s;
-}
+  .hidden_cell {
+    visibility: hidden;
+  }
 
-@keyframes changeColorCorrect {
-  0% {
-    background-color: #fff; /* Default color */
+  .correct_cell {
+    animation: changeColorCorrect 0.5s;
   }
-  50% {
-    background-color: #66ff99; /* Bright color (e.g., bright yellow) */
+
+  .wrong_cell {
+    animation: changeColorWrong 0.5s;
   }
-  100% {
-    background-color: #fff; /* Back to default color */
+
+  @keyframes changeColorCorrect {
+    0% {
+      background-color: #fff; /* Default color */
+    }
+    50% {
+      background-color: #66ff99; /* Bright color */
+    }
+    100% {
+      background-color: #fff; /* Back to default color */
+    }
   }
-}
-@keyframes changeColorWrong {
-  0% {
-    background-color: #fff; /* Default color */
+
+  @keyframes changeColorWrong {
+    0% {
+      background-color: #fff; /* Default color */
+    }
+    50% {
+      background-color: #ff8080; /* Bright color */
+    }
+    100% {
+      background-color: #fff; /* Back to default color */
+    }
   }
-  50% {
-    background-color: #ff8080; /* Bright color (e.g., bright yellow) */
+
+  // Media Queries for Mobile View
+  @media (max-width: 864px) {
+    .btn_group {
+      min-width: auto;
+      justify-content: center;
+    }
+    .grid {
+      min-width: 320px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+    }
   }
-  100% {
-    background-color: #fff; /* Back to default color */
+
+  @media (max-width: 400px) {
+    // .btn_group {
+    //   flex-direction: column;
+    //   align-items: center;
+    // }
+    .grid {
+      min-width: 300px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .cell {
+      padding: 5px;
+    }
   }
 }
