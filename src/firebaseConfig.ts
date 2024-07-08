@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -24,4 +25,8 @@ const analytics = getAnalytics(app);
 
 const storage = getStorage(app);
 const db = getFirestore(app);
-export { db, storage };
+const dbRealtime = getDatabase(
+  app,
+  "https://vocabularyproject-ab9b6-default-rtdb.asia-southeast1.firebasedatabase.app/"
+);
+export { dbRealtime, db, storage };

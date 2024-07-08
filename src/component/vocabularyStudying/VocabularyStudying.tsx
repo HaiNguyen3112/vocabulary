@@ -1,28 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import useFileInput from "../../custom-hook/file-input/UseFileInput";
-import {
-  dinningoutVocabulary,
-  entertainmentVocabulary,
-  technologyVocabulary,
-  WordType,
-} from "../../dummy-data/words";
+import { WordType } from "../../dummy-data/words";
 import WordGrid from "../wordGrid/WordGrid";
-import { Button, Select } from "antd";
+import { Button, Select, Spin } from "antd";
 import { FileExcelOutlined } from "@ant-design/icons";
-
-type SelectType = {
-  label: string;
-  value: "" | "TECHNOLOGY" | "DINNINGOUT" | "ENTERTAINMENT";
-};
-
-const initOption: SelectType[] = [
-  { label: "Select a topic ", value: "" },
-  { label: "Entertainment", value: "ENTERTAINMENT" },
-  { label: "Technology", value: "TECHNOLOGY" },
-  { label: "Dinning out", value: "DINNINGOUT" },
-];
+import { getWords } from "../firebase-store/store";
+import { CategoryTypeList } from "../../constant/constant";
 
 const VocabularyStudying = () => {
+  const [wordList, setWordList] = useState<WordType[]>([]);
   const { data, handleFileUpload } = useFileInput<WordType>();
   const inputRef = useRef<any>(null);
   const handleOpenFile = () => {
@@ -31,47 +17,61 @@ const VocabularyStudying = () => {
     }
   };
   const [currentSelect, setCurrentSelect] = useState<string>("");
-  console.log("currentSelect: ", currentSelect);
   const [currentList, setCurrentList] = useState<WordType[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     if (data?.length) {
-      setCurrentList(data);
+      setWordList(data);
     }
   }, [data]);
 
-  useEffect(() => {
-    switch (currentSelect) {
-      case "":
-        data?.length && setCurrentList(data);
-        break;
-      case "ENTERTAINMENT":
-        setCurrentList(entertainmentVocabulary);
-        break;
-      case "TECHNOLOGY":
-        setCurrentList(technologyVocabulary);
-        break;
-      case "DINNINGOUT":
-        setCurrentList(dinningoutVocabulary);
-        break;
-
-      default:
-        setCurrentList(data);
-        break;
+  const fetchWords = async () => {
+    setLoading(true);
+    try {
+      const words = await getWords();
+      setWordList(words);
+    } catch (error) {
+      console.error("Error fetching words: ", error);
+    } finally {
+      setLoading(false);
     }
-  }, [currentSelect, data]);
+  };
+
+  useEffect(() => {
+    fetchWords();
+  }, []);
+
+  useEffect(() => {
+    if (!currentSelect) {
+      setCurrentList(wordList);
+    } else {
+      const tempList = wordList.filter(
+        (word: WordType) => word.category === currentSelect
+      );
+      setCurrentList(tempList);
+    }
+  }, [currentSelect, wordList]);
 
   return (
-    <>
+    <Spin spinning={loading} delay={500} size="large">
       <WordGrid dataInit={currentList}>
         <Button onClick={handleOpenFile} type="primary">
           <FileExcelOutlined /> Upload file
         </Button>
         <Select
-          options={initOption}
           value={currentSelect}
-          onChange={(value) => setCurrentSelect(value)}
-        />
+          onChange={(value: string) => setCurrentSelect(value)}
+          style={{ minWidth: 150, textAlign: "left" }}
+        >
+          {CategoryTypeList.map((category) => {
+            return (
+              <Select.Option value={category.value} key={category.value}>
+                {category.label}
+              </Select.Option>
+            );
+          })}
+        </Select>
         <input
           style={{ visibility: "hidden", display: "contents" }}
           ref={inputRef}
@@ -79,7 +79,7 @@ const VocabularyStudying = () => {
           onChange={handleFileUpload}
         />
       </WordGrid>
-    </>
+    </Spin>
   );
 };
 

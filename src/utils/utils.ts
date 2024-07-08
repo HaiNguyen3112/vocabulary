@@ -1,3 +1,5 @@
+import { CATEGORYTYPE } from "../constant/constant";
+
 // Function to shuffle an array
 export const shuffleArray = <T>(array: T[]): T[] => {
   const newArray = [...array];
@@ -16,5 +18,31 @@ export const speakText = (text: string, lang: string = "en-US"): void => {
     window.speechSynthesis.speak(utterance);
   } else {
     alert("Sorry, your browser does not support speech synthesis.");
+  }
+};
+
+export const getCategoryColor = (category: CATEGORYTYPE) => {
+  switch (category) {
+    case CATEGORYTYPE.DINNINGOUT:
+      return "blue";
+    case CATEGORYTYPE.ENTERTAINMENT:
+      return "purple";
+    case CATEGORYTYPE.GENERAL_BUSINESS:
+      return "cyan";
+    case CATEGORYTYPE.MANUFACTURING:
+      return "green";
+    case CATEGORYTYPE.OFFICES:
+      return "magenta";
+    case CATEGORYTYPE.PERSONAL:
+      return "pink";
+    case CATEGORYTYPE.PURCHASING:
+      return "red";
+    case CATEGORYTYPE.TECHNOLOGY:
+      return "orange";
+    case CATEGORYTYPE.TRAVEL:
+      return "yellow";
+
+    default:
+      return "blue";
   }
 };
