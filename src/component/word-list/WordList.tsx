@@ -43,7 +43,7 @@ const WordList: React.FC = () => {
 
       if (filter.searchKey) {
         tempList = tempList.filter((word: WordType) =>
-          word.word.includes(filter.searchKey)
+          word.word.toLowerCase().includes(filter.searchKey.toLowerCase())
         );
       }
 
