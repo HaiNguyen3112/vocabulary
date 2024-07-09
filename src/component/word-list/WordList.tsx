@@ -43,7 +43,9 @@ const WordList: React.FC = () => {
 
       if (filter.searchKey) {
         tempList = tempList.filter((word: WordType) =>
-          word.word.toLowerCase().includes(filter.searchKey.toLowerCase())
+          word.word
+            .toLowerCase()
+            .includes(filter.searchKey?.trim().toLowerCase())
         );
       }
 
@@ -67,7 +69,7 @@ const WordList: React.FC = () => {
           <Input.Search
             value={filter.searchKey}
             onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              setFilter({ ...filter, searchKey: event.target.value?.trim() })
+              setFilter({ ...filter, searchKey: event.target.value })
             }
           />
           <Select
