@@ -42,10 +42,14 @@ const WordList: React.FC = () => {
       let tempList: WordType[] = [...wordList];
 
       if (filter.searchKey) {
-        tempList = tempList.filter((word: WordType) =>
-          word.word
-            .toLowerCase()
-            .includes(filter.searchKey?.trim().toLowerCase())
+        tempList = tempList.filter(
+          (word: WordType) =>
+            word.word
+              .toLowerCase()
+              .includes(filter.searchKey?.trim().toLowerCase()) ||
+            word.definition
+              .toLowerCase()
+              .includes(filter.searchKey?.trim().toLowerCase())
         );
       }
 
