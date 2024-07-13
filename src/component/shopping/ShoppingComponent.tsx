@@ -3,6 +3,7 @@ import styles from "./ShoppingComponent.module.scss";
 import { useState, useEffect, Suspense } from "react";
 import { storage } from "../../firebaseConfig";
 import { ref, listAll, getDownloadURL } from "firebase/storage";
+import { Image } from "antd";
 
 const ShoppingComponent = () => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -32,7 +33,7 @@ const ShoppingComponent = () => {
     <Suspense fallback={<div>Loading.........</div>}>
       <div className={styles.shopping}>
         {imageUrls.map((image, index) => (
-          <img key={index} src={image} alt={`Shopping item ${index + 1}`} />
+          <Image key={index} src={image} alt={`Shopping item ${index + 1}`} />
         ))}
       </div>
     </Suspense>
