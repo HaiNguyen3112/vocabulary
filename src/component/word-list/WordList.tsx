@@ -91,7 +91,9 @@ const WordList: React.FC = () => {
             })}
           </Select>
         </div>
-        <WordImportComponent />
+        <WordImportComponent
+          wordList={wordList.map((item: WordType) => item.word)}
+        />
       </div>
       <Table
         loading={loading}

@@ -24,12 +24,12 @@ const App: React.FC = () => {
             <Menu.Item key="1" icon={<HomeOutlined />}>
               <Link to="/">Vocabulary Studying</Link>
             </Menu.Item>
-            <Menu.Item key="3" icon={<ShoppingOutlined />}>
+            {/* <Menu.Item key="3" icon={<ShoppingOutlined />}>
               <Link to="/shopping">Shopping</Link>
             </Menu.Item>
             <Menu.Item key="4" icon={<UploadOutlined />}>
               <Link to="/upload">Upload Image</Link>
-            </Menu.Item>
+            </Menu.Item> */}
             <Menu.Item key="5" icon={<PlusOutlined />}>
               <Link to="/vocabulary-management">Vocabulary Management</Link>
             </Menu.Item>

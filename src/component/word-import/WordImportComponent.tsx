@@ -23,7 +23,11 @@ type FieldType = {
   category: CATEGORYTYPE;
 };
 
-const WordImportComponent: React.FC = () => {
+type Props = {
+  wordList: string[];
+};
+
+const WordImportComponent = ({ wordList }: Props) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalPreviewOpen, setIsModalPreviewOpen] = useState(false);
 
@@ -104,7 +108,19 @@ const WordImportComponent: React.FC = () => {
           <Form.Item<FieldType>
             label="Word"
             name="word"
-            rules={[{ required: true, message: "Please input your word!" }]}
+            rules={[
+              { required: true, message: "Please input your word!" },
+              {
+                validator(_, value) {
+                  if (!value || !wordList.includes(value)) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("The word is in the predefined list!")
+                  );
+                },
+              },
+            ]}
           >
             <Input />
           </Form.Item>
