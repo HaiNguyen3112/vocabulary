@@ -10,6 +10,7 @@ export enum CATEGORYTYPE {
   TRAVEL = "TRAVEL",
   PHRASAL_VERB = "PHRASAL_VERB",
   IDIOM = "IDIOM",
+  LINKING_WORD = "LINKING_WORD",
   OTHER = "OTHER",
 }
 
@@ -26,5 +27,6 @@ export const CategoryTypeList: { value: string; label: string }[] = [
   { value: CATEGORYTYPE.TRAVEL, label: "Travel" },
   { value: CATEGORYTYPE.PHRASAL_VERB, label: "Phrasal verb" },
   { value: CATEGORYTYPE.IDIOM, label: "Idiom" },
+  { value: CATEGORYTYPE.LINKING_WORD, label: "Linking word" },
   { value: CATEGORYTYPE.OTHER, label: "Other" },
 ];
