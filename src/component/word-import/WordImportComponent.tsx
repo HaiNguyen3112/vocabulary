@@ -112,7 +112,14 @@ const WordImportComponent = ({ wordList }: Props) => {
               { required: true, message: "Please input your word!" },
               {
                 validator(_, value) {
-                  if (!value || !wordList.includes(value)) {
+                  if (
+                    !value ||
+                    !wordList.some(
+                      (item: string) =>
+                        item?.trim().toLocaleLowerCase() ===
+                        value?.trim()?.toLocaleLowerCase()
+                    )
+                  ) {
                     return Promise.resolve();
                   }
                   return Promise.reject(
