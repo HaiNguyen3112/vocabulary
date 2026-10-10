@@ -19,6 +19,7 @@ import { WordDetailDrawer } from "./word-detail-drawer";
 import { WordListPager } from "./word-list-pager";
 import { getWordTableColumns } from "./word-table-columns";
 import { WordsSplitView } from "./words-split-view";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./words-workspace.module.scss";
 
 /** Clicks on these inside a row keep their own behaviour instead of opening the word. */
@@ -82,10 +83,21 @@ export function WordsWorkspace({ selectedId }: Props) {
           <CategoryFilterSelect value={category} onChange={(value) => updateParams({ category: value, page: "" })} />
         </div>
         <div className={styles.actions}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(ROUTES.wordNew)}>
-            Add word
-          </Button>
-          <ExcelFileButton onParsed={setImportRows} />
+          <OfflineHint>
+            {(isOnline) => (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                disabled={!isOnline}
+                onClick={() => navigate(ROUTES.wordNew)}
+              >
+                Add word
+              </Button>
+            )}
+          </OfflineHint>
+          <OfflineHint>
+            {(isOnline) => <ExcelFileButton onParsed={setImportRows} disabled={!isOnline} />}
+          </OfflineHint>
         </div>
       </div>
 

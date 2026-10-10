@@ -31,6 +31,7 @@ $radius: 4px;
 $rule-height: 22px;
 
 $topbar-height: 56px;
+$topbar-height-compact: 48px;
 $tabbar-height: 48px;
 // The bar overlaps part of the home-indicator zone instead of adding the full inset.
 $tabbar-safe-bottom: max(6px, calc(env(safe-area-inset-bottom, 0px) - 14px));

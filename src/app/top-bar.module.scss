@@ -53,7 +53,7 @@
 
 @media (max-width: $bp-lg - 1px) {
   .bar {
-    height: 48px;
+    height: $topbar-height-compact;
     justify-content: space-between;
   }
 

@@ -4,6 +4,7 @@ import { ApiError, getErrorMessage } from "@/api/client";
 import { findLearnerRequest, registerLearnerRequest } from "@/api/learners-api";
 import { useLearner } from "@/hooks/use-learner";
 import { parseLearnerInput, type Learner } from "@shared/learner";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./learner-gate.module.scss";
 
 type TabKey = "sign-in" | "register";
@@ -133,14 +134,19 @@ export function LearnerGate({ children }: { children: ReactNode }) {
                     onChange={() => setNotFound(false)}
                   />
                 </Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={submitting}
-                  block
-                >
-                  Sign in
-                </Button>
+                <OfflineHint block>
+                  {(isOnline) => (
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={submitting}
+                      disabled={!isOnline}
+                      block
+                    >
+                      Sign in
+                    </Button>
+                  )}
+                </OfflineHint>
               </Form>
             ),
           },
@@ -166,14 +172,19 @@ export function LearnerGate({ children }: { children: ReactNode }) {
                 <Form.Item name="userId" label="User ID" extra={USER_ID_HINT}>
                   <Input autoComplete="username" placeholder="your-user-id" />
                 </Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={submitting}
-                  block
-                >
-                  Register
-                </Button>
+                <OfflineHint block>
+                  {(isOnline) => (
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={submitting}
+                      disabled={!isOnline}
+                      block
+                    >
+                      Register
+                    </Button>
+                  )}
+                </OfflineHint>
               </Form>
             ),
           },
