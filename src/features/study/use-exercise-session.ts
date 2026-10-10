@@ -2,10 +2,12 @@ import { App } from "antd";
 import { useRef, useState } from "react";
 import type { Rating } from "@shared/review";
 import { SPEECH_LANG } from "@/constants/study";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useReviews } from "@/hooks/use-reviews";
 import { buildExercise } from "@/lib/build-exercise";
 import type { Exercise, ExerciseKind, StudyWord } from "@/lib/exercise";
 import { gradeToRating, ratingToGrade, type Grade } from "@/lib/grade-answer";
+import { shouldRecordReview } from "@/lib/review-recording";
 import { speakText } from "@/lib/speech";
 
 /** First attempt at each word. */
@@ -36,6 +38,7 @@ const NO_ANSWER = -1;
 export function useExerciseSession({ words, pool, kindFor, requeueWrong }: SessionOptions) {
   const { message } = App.useApp();
   const { record } = useReviews();
+  const isOnline = useOnlineStatus();
 
   /** Built lazily when a word becomes current; choice direction alternates by queue position. */
   const buildAt = (queue: readonly StudyWord[], position: number): Exercise | null => {
@@ -71,7 +74,7 @@ export function useExerciseSession({ words, pool, kindFor, requeueWrong }: Sessi
     }));
     speakText(word.word, SPEECH_LANG);
 
-    if (isFirstAttempt && word.id !== null) {
+    if (shouldRecordReview(word.id, isFirstAttempt, isOnline)) {
       void record(word.id, rating).then((review) => {
         if (!review) message.warning("Could not save progress");
       });

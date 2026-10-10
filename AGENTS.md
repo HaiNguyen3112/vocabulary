@@ -22,6 +22,7 @@ Khung cấu trúc lấy từ `bistro-hub` (layers, rules, docs, Hono + MongoDB) 
 - UI: Ant Design 5 + SCSS modules; tokens in `src/styles/`
 - Excel import: `xlsx` (client-side parse → validated → `POST /api/words/bulk`)
 - Test: Vitest for pure `lib/` + server input validation
+- PWA: `vite-plugin-pwa` — offline read + free practice (progress not saved offline); writes/FSRS review need a network
 
 ## Code layers
 

@@ -1,0 +1,19 @@
+@use "../styles/tokens" as *;
+
+.banner {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + #{$topbar-height});
+  z-index: 99;
+  padding: $space-xs $space-md;
+  border-bottom: 1px solid $color-border;
+  background: $color-chrome;
+  color: $color-text-muted;
+  font-size: 13px;
+  text-align: center;
+}
+
+@media (max-width: $bp-lg - 1px) {
+  .banner {
+    top: calc(env(safe-area-inset-top, 0px) + #{$topbar-height-compact});
+  }
+}

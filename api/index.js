@@ -63,6 +63,7 @@ var collections = {
 };
 async function ensureIndexes(database) {
   await database.collection("words").createIndex({ wordKey: 1 });
+  await database.collection("words").createIndex({ createdAt: -1 });
   await database.collection("words").createIndex({ category: 1, createdAt: -1 });
   await database.collection("words").createIndex({ familyId: 1 }, { sparse: true });
   await database.collection("learners").createIndex({ userIdKey: 1 }, { unique: true });
@@ -451,6 +452,29 @@ function parseWordInput(raw) {
     value: { word, category, senses, relatedWordIds: [...new Set(relatedWordIds)] }
   };
 }
+var DEFAULT_WORDS_PAGE_SIZE = 20;
+var MAX_WORDS_PAGE_SIZE = 100;
+var MAX_WORD_SEARCH_LENGTH = 200;
+function toPositiveInt(value, fallback) {
+  if (value === void 0 || value === "") return fallback;
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 1 ? number : null;
+}
+function parseWordPageQuery(raw) {
+  const page = toPositiveInt(raw.page, 1);
+  if (page === null) return { ok: false, error: "page must be a positive integer" };
+  const pageSize = toPositiveInt(raw.pageSize, DEFAULT_WORDS_PAGE_SIZE);
+  if (pageSize === null || pageSize > MAX_WORDS_PAGE_SIZE) {
+    return { ok: false, error: `pageSize must be between 1 and ${MAX_WORDS_PAGE_SIZE}` };
+  }
+  const search = (raw.q ?? "").trim();
+  if (search.length > MAX_WORD_SEARCH_LENGTH) return { ok: false, error: "Search is too long" };
+  const category = raw.category ? raw.category.toUpperCase() : null;
+  if (category !== null && !isCategory(category)) {
+    return { ok: false, error: `Unknown category "${raw.category}"` };
+  }
+  return { ok: true, value: { search, category, page, pageSize } };
+}
 
 // server/services/words.ts
 import { randomUUID as randomUUID3 } from "node:crypto";
@@ -518,6 +542,42 @@ async function listWords(category) {
   const relatedOf = groupFamilies(familyRows);
   return rows.map((row) => mapWord(row, relatedOf(row)));
 }
+function escapeRegex(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function pageFilter({ search, category }) {
+  const filter = category ? { category } : {};
+  if (!search) return filter;
+  const pattern = { $regex: escapeRegex(search), $options: "i" };
+  return {
+    ...filter,
+    $or: [{ word: pattern }, { "senses.definition": pattern }, { "senses.examples": pattern }]
+  };
+}
+async function withRelated(rows) {
+  const familyIds = [...new Set(rows.flatMap((row) => row.familyId ? [row.familyId] : []))];
+  if (familyIds.length === 0) return { words: rows.map((row) => mapWord(row, [])), related: [] };
+  const members = await collections.words().find({ familyId: { $in: familyIds } }).toArray();
+  const relatedOf = groupFamilies(members);
+  const rowIds = new Set(rows.map((row) => row._id));
+  return {
+    words: rows.map((row) => mapWord(row, relatedOf(row))),
+    related: members.filter((row) => !rowIds.has(row._id)).map((row) => mapWord(row, relatedOf(row)))
+  };
+}
+async function listWordPage(query) {
+  const filter = pageFilter(query);
+  const total = await collections.words().countDocuments(filter);
+  const page = Math.min(query.page, Math.max(1, Math.ceil(total / query.pageSize)));
+  const rows = await collections.words().find(filter).sort({ createdAt: -1, _id: 1 }).skip((page - 1) * query.pageSize).limit(query.pageSize).toArray();
+  return { ...await withRelated(rows), total, page, pageSize: query.pageSize };
+}
+async function getWordWithRelated(id) {
+  const row = await collections.words().findOne({ _id: id });
+  if (!row) return null;
+  const { words, related } = await withRelated([row]);
+  return { word: words[0], related };
+}
 async function wordExists(word, exceptId) {
   const row = await collections.words().findOne(
     { wordKey: normalizeWordKey(word), ...exceptId ? { _id: { $ne: exceptId } } : {} },
@@ -573,12 +633,21 @@ async function insertWordsSkippingExisting(inputs) {
 // server/routes/words.ts
 var wordRoutes = new Hono2();
 wordRoutes.get("/", async (c) => {
+  if (c.req.query("page") !== void 0) {
+    const parsed = parseWordPageQuery(c.req.query());
+    if (!parsed.ok) return c.json({ error: parsed.error }, 400);
+    return c.json(await listWordPage(parsed.value));
+  }
   const category = c.req.query("category");
   if (!category) return c.json({ words: await listWords() });
   if (!isCategory(category)) {
     return c.json({ error: `Unknown category "${category}"` }, 400);
   }
   return c.json({ words: await listWords(category) });
+});
+wordRoutes.get("/:id", async (c) => {
+  const result = await getWordWithRelated(c.req.param("id"));
+  return result ? c.json(result) : c.json({ error: "Word not found" }, 404);
 });
 wordRoutes.post("/", async (c) => {
   const parsed = parseWordInput(await c.req.json().catch(() => null));

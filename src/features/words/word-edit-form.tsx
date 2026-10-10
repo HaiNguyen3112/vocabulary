@@ -12,6 +12,7 @@ import { useWordsStore } from "@/store/words-store";
 import { RelatedWordsField } from "./related-words-field";
 import { SensesField } from "./senses-field";
 import { toFormValues, toWordInput, type WordFormValues } from "./word-form-values";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./word-edit-form.module.scss";
 
 type Props = {
@@ -120,10 +121,22 @@ function WordForm({ editing, words }: { editing: Word | null; words: readonly Wo
 
         <div className={styles.actions}>
           <Button onClick={goBack}>Cancel</Button>
-          {!editing && <Button onClick={handleSaveAndAddAnother}>Save & add another</Button>}
-          <Button type="primary" htmlType="submit">
-            Save
-          </Button>
+          {!editing && (
+            <OfflineHint>
+              {(isOnline) => (
+                <Button disabled={!isOnline} onClick={handleSaveAndAddAnother}>
+                  Save & add another
+                </Button>
+              )}
+            </OfflineHint>
+          )}
+          <OfflineHint>
+            {(isOnline) => (
+              <Button type="primary" htmlType="submit" disabled={!isOnline}>
+                Save
+              </Button>
+            )}
+          </OfflineHint>
         </div>
       </Form>
     </div>

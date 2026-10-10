@@ -10,6 +10,7 @@ import { WordSenses } from "@/features/shared/word-senses";
 import { useWord } from "@/hooks/use-word";
 import { speakText } from "@/lib/speech";
 import { RelatedWordsList } from "./related-words";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./word-detail.module.scss";
 
 type Props = {
@@ -65,15 +66,20 @@ export function WordDetail({ id, onClose, onOpenRelated }: Props) {
             />
             <CategoryTag category={word.category} />
             <ReviewStatusTag wordId={word.id} />
-            <Tooltip title="Edit">
-              <Button
-                type="text"
-                shape="circle"
-                icon={<EditOutlined />}
-                aria-label={`Edit ${word.word}`}
-                onClick={() => navigate(wordEditPath(word.id))}
-              />
-            </Tooltip>
+            <OfflineHint>
+              {(isOnline) => (
+                <Tooltip title={isOnline ? "Edit" : undefined}>
+                  <Button
+                    type="text"
+                    shape="circle"
+                    icon={<EditOutlined />}
+                    aria-label={`Edit ${word.word}`}
+                    disabled={!isOnline}
+                    onClick={() => navigate(wordEditPath(word.id))}
+                  />
+                </Tooltip>
+              )}
+            </OfflineHint>
           </>
         }
       />

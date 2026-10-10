@@ -76,3 +76,9 @@ export const useWordsStore = create<WordsState>((set, get) => {
     },
   };
 });
+
+/** The full list for offline fallbacks: the store's copy when loaded (newest edits), else the cached API. */
+export async function getAllWords(): Promise<Word[]> {
+  const { status, words } = useWordsStore.getState();
+  return status === "ready" ? words : (await fetchWordsRequest()).words;
+}

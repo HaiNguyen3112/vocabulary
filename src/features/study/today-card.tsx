@@ -4,6 +4,7 @@ import { useReviews } from "@/hooks/use-reviews";
 import { useWords } from "@/hooks/use-words";
 import { todayStats } from "@/lib/review-queue";
 import { toStudyWord } from "./practice-source";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./study-hub.module.scss";
 
 type Props = {
@@ -42,17 +43,21 @@ export function TodayCard({ onStart }: Props) {
               </div>
             ))}
           </dl>
-          <Button
-            type="primary"
-            size="large"
-            block
-            icon={isAllDone ? <CheckCircleOutlined /> : <PlayCircleOutlined />}
-            disabled={isLoading || isAllDone}
-            onClick={onStart}
-            className={styles.start}
-          >
-            {isAllDone && !isLoading ? "All done for today" : "Start review"}
-          </Button>
+          <OfflineHint block>
+            {(isOnline) => (
+              <Button
+                type="primary"
+                size="large"
+                block
+                icon={isAllDone ? <CheckCircleOutlined /> : <PlayCircleOutlined />}
+                disabled={isLoading || isAllDone || !isOnline}
+                onClick={onStart}
+                className={styles.start}
+              >
+                {isAllDone && !isLoading ? "All done for today" : "Start review"}
+              </Button>
+            )}
+          </OfflineHint>
         </Spin>
       )}
     </section>

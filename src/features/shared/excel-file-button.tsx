@@ -9,9 +9,10 @@ import { readWordsFromExcel } from "./read-excel";
 type Props = {
   onParsed: (rows: ParsedWordRows) => void;
   label?: string;
+  disabled?: boolean;
 };
 
-export function ExcelFileButton({ onParsed, label = "Upload file" }: Props) {
+export function ExcelFileButton({ onParsed, label = "Upload file", disabled = false }: Props) {
   const { message } = App.useApp();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isReading, setIsReading] = useState(false);
@@ -39,6 +40,7 @@ export function ExcelFileButton({ onParsed, label = "Upload file" }: Props) {
         type="primary"
         icon={<FileExcelOutlined />}
         loading={isReading}
+        disabled={disabled}
         onClick={() => inputRef.current?.click()}
       >
         {label}

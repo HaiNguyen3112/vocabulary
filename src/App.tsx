@@ -2,6 +2,7 @@ import { App as AntApp, ConfigProvider } from "antd";
 import { BrowserRouter } from "react-router-dom";
 import { AppLayout } from "@/app/app-layout";
 import { AppRoutes } from "@/app/app-routes";
+import { PwaUpdatePrompt } from "@/app/pwa-update-prompt";
 import { useApplyColorScheme, useResolvedColorScheme } from "@/hooks/use-color-scheme";
 import { appThemes } from "@/styles/theme";
 
@@ -12,6 +13,7 @@ export default function App() {
   return (
     <ConfigProvider theme={appThemes[scheme]}>
       <AntApp>
+        <PwaUpdatePrompt />
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
           <AppLayout>
             <AppRoutes />

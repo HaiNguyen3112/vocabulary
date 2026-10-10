@@ -11,6 +11,7 @@ import { useGoBack } from "@/hooks/use-go-back";
 import { useIsDesktop, useIsMobile } from "@/hooks/use-media-query";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useWordPage } from "@/hooks/use-word-page";
+import { useWords } from "@/hooks/use-words";
 import type { ParsedWordRows } from "@/lib/excel-rows";
 import { ImportPreviewModal } from "./import-preview-modal";
 import { useWordListParams } from "./use-word-list-params";
@@ -19,6 +20,7 @@ import { WordDetailDrawer } from "./word-detail-drawer";
 import { WordListPager } from "./word-list-pager";
 import { getWordTableColumns } from "./word-table-columns";
 import { WordsSplitView } from "./words-split-view";
+import { OfflineHint } from "@/features/shared/offline-hint";
 import styles from "./words-workspace.module.scss";
 
 /** Clicks on these inside a row keep their own behaviour instead of opening the word. */
@@ -35,6 +37,8 @@ export function WordsWorkspace({ selectedId }: Props) {
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   const [importRows, setImportRows] = useState<ParsedWordRows | null>(null);
+  // Loads the full list once so the word bank still searches offline (see use-word-page).
+  useWords();
   const { search, category, page, listSearch, updateParams } = useWordListParams();
   // Drawer close = history back when the list opened it, so Back and X land on the same entry.
   const closeDrawer = useGoBack(ROUTES.words + listSearch);
@@ -82,10 +86,21 @@ export function WordsWorkspace({ selectedId }: Props) {
           <CategoryFilterSelect value={category} onChange={(value) => updateParams({ category: value, page: "" })} />
         </div>
         <div className={styles.actions}>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => navigate(ROUTES.wordNew)}>
-            Add word
-          </Button>
-          <ExcelFileButton onParsed={setImportRows} />
+          <OfflineHint>
+            {(isOnline) => (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                disabled={!isOnline}
+                onClick={() => navigate(ROUTES.wordNew)}
+              >
+                Add word
+              </Button>
+            )}
+          </OfflineHint>
+          <OfflineHint>
+            {(isOnline) => <ExcelFileButton onParsed={setImportRows} disabled={!isOnline} />}
+          </OfflineHint>
         </div>
       </div>
 

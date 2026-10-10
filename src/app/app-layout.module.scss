@@ -17,6 +17,6 @@
   .content {
     padding-top: $space-md;
     // Keep the last row and form buttons clear of the fixed tab bar.
-    padding-bottom: calc(#{$tabbar-height} + #{$space-md} + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(#{$tabbar-height} + #{$space-md} + #{$tabbar-safe-bottom});
   }
 }
