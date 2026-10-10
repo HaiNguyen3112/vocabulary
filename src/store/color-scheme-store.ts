@@ -10,7 +10,7 @@ function readStoredPreference(): ColorSchemePreference {
   try {
     return parseColorSchemePreference(window.localStorage.getItem(COLOR_SCHEME_STORAGE_KEY));
   } catch {
-    return "system";
+    return "light";
   }
 }
 
