@@ -83,6 +83,7 @@ export const collections = {
 async function ensureIndexes(database: Db): Promise<void> {
   // Not unique: legacy data has the same word with different meanings.
   await database.collection("words").createIndex({ wordKey: 1 });
+  await database.collection("words").createIndex({ createdAt: -1 });
   await database.collection("words").createIndex({ category: 1, createdAt: -1 });
   await database.collection("words").createIndex({ familyId: 1 }, { sparse: true });
   await database.collection("learners").createIndex({ userIdKey: 1 }, { unique: true });

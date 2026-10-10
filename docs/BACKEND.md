@@ -47,6 +47,8 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 |--------|------|------|--------|
 | GET | `/api/health` | — | `{ ok, db: "mongo" }` or 503 |
 | GET | `/api/words?category=` | — | `{ words: Word[] }` newest first |
+| GET | `/api/words?page=&pageSize=&q=&category=` | — | `{ words, related, total, page, pageSize }` — word list page (≤ 100), `q` matches word / definition / example case-insensitively; `related` = family members of the page's words; a page past the end returns the last page · `400` invalid query |
+| GET | `/api/words/:id` | — | `{ word, related }` · `404` |
 | POST | `/api/words` | `WordInput` | `201 { word }` · `400` invalid · `409` exists |
 | PUT | `/api/words/:id` | `WordInput` | `200 { word }` · `400` · `404` · `409` spelling used by another word |
 | POST | `/api/words/bulk` | `{ words: WordInput[] }` (≤ 2000) | `201 { inserted, skipped }` · `400` with row number |

@@ -1,5 +1,5 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Empty, List, type PaginationProps } from "antd";
+import { Button, Empty, List } from "antd";
 import type { Word } from "@shared/word";
 import { CategoryTag } from "@/features/shared/category-tag";
 import { WordSenses } from "@/features/shared/word-senses";
@@ -10,20 +10,18 @@ type Props = {
   words: Word[];
   wordsById: ReadonlyMap<string, Word>;
   isLoading: boolean;
-  pagination: PaginationProps;
   onOpen: (id: string) => void;
   onEdit: (word: Word) => void;
 };
 
 /** Mobile word list: one card per word with every meaning and its related words. */
-export function WordCardList({ words, wordsById, isLoading, pagination, onOpen, onEdit }: Props) {
+export function WordCardList({ words, wordsById, isLoading, onOpen, onEdit }: Props) {
   return (
     <List
       className={styles.list}
       loading={isLoading}
       dataSource={words}
       locale={{ emptyText: <Empty description="No words" /> }}
-      pagination={{ ...pagination, size: "small", align: "center" }}
       renderItem={(word) => {
         const related = word.relatedWordIds.flatMap((id) => wordsById.get(id) ?? []);
         return (

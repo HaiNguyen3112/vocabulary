@@ -1,10 +1,14 @@
 import { randomUUID } from "node:crypto";
 import type { Category } from "../../shared/categories";
+import type { Filter } from "mongodb";
 import {
   normalizeWordKey,
   type BulkInsertResult,
   type Word,
   type WordInput,
+  type WordPage,
+  type WordPageQuery,
+  type WordWithRelated,
 } from "../../shared/word";
 import { collections } from "../db/mongo";
 import type { WordDoc } from "../db/types";
@@ -42,6 +46,57 @@ export async function listWords(category?: Category): Promise<Word[]> {
     : rows;
   const relatedOf = groupFamilies(familyRows);
   return rows.map((row) => mapWord(row, relatedOf(row)));
+}
+
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Same match as the old client filter: word, any definition or any example, case-insensitive. */
+function pageFilter({ search, category }: WordPageQuery): Filter<WordDoc> {
+  const filter: Filter<WordDoc> = category ? { category } : {};
+  if (!search) return filter;
+  const pattern = { $regex: escapeRegex(search), $options: "i" };
+  return {
+    ...filter,
+    $or: [{ word: pattern }, { "senses.definition": pattern }, { "senses.examples": pattern }],
+  };
+}
+
+/** Maps `rows` with their related ids and loads the family members that are not in `rows`. */
+async function withRelated(rows: WordDoc[]): Promise<{ words: Word[]; related: Word[] }> {
+  const familyIds = [...new Set(rows.flatMap((row) => (row.familyId ? [row.familyId] : [])))];
+  if (familyIds.length === 0) return { words: rows.map((row) => mapWord(row, [])), related: [] };
+
+  const members = await collections.words().find({ familyId: { $in: familyIds } }).toArray();
+  const relatedOf = groupFamilies(members);
+  const rowIds = new Set(rows.map((row) => row._id));
+  return {
+    words: rows.map((row) => mapWord(row, relatedOf(row))),
+    related: members.filter((row) => !rowIds.has(row._id)).map((row) => mapWord(row, relatedOf(row))),
+  };
+}
+
+/** One page of the word list, newest first. A page past the end returns the last page. */
+export async function listWordPage(query: WordPageQuery): Promise<WordPage> {
+  const filter = pageFilter(query);
+  const total = await collections.words().countDocuments(filter);
+  const page = Math.min(query.page, Math.max(1, Math.ceil(total / query.pageSize)));
+  const rows = await collections
+    .words()
+    .find(filter)
+    .sort({ createdAt: -1, _id: 1 })
+    .skip((page - 1) * query.pageSize)
+    .limit(query.pageSize)
+    .toArray();
+  return { ...(await withRelated(rows)), total, page, pageSize: query.pageSize };
+}
+
+export async function getWordWithRelated(id: string): Promise<WordWithRelated | null> {
+  const row = await collections.words().findOne({ _id: id });
+  if (!row) return null;
+  const { words, related } = await withRelated([row]);
+  return { word: words[0], related };
 }
 
 /** True when another word (not `exceptId`) already uses this spelling. */

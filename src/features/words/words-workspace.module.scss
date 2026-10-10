@@ -53,6 +53,10 @@
   cursor: pointer;
 }
 
+.pager {
+  padding: $space-xs 0 $space-md;
+}
+
 // Desktop split view: the workspace fills the viewport; list and detail scroll on their own.
 .desktop {
   height: calc(100dvh - #{$topbar-height} - #{$space-lg * 2});
@@ -68,10 +72,24 @@
 }
 
 .listPane {
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid $color-border;
   border-radius: $radius;
   background: $color-surface;
+}
+
+.listScroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+// Pager stays visible under the scrolling list.
+.paneFooter {
+  padding: $space-sm $space-md;
+  border-top: 1px solid $color-border;
 }
 
 .detailPane {

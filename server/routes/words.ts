@@ -1,9 +1,11 @@
 import { Hono } from "hono";
 import { isCategory } from "../../shared/categories";
-import { MAX_BULK_WORDS, parseWordInput, type WordInput } from "../../shared/word";
+import { MAX_BULK_WORDS, parseWordInput, parseWordPageQuery, type WordInput } from "../../shared/word";
 import {
+  getWordWithRelated,
   insertWord,
   insertWordsSkippingExisting,
+  listWordPage,
   listWords,
   updateWord,
   wordExists,
@@ -12,12 +14,23 @@ import {
 export const wordRoutes = new Hono();
 
 wordRoutes.get("/", async (c) => {
+  // `page` present = paged + searched word list; absent = every word (study sessions).
+  if (c.req.query("page") !== undefined) {
+    const parsed = parseWordPageQuery(c.req.query());
+    if (!parsed.ok) return c.json({ error: parsed.error }, 400);
+    return c.json(await listWordPage(parsed.value));
+  }
   const category = c.req.query("category");
   if (!category) return c.json({ words: await listWords() });
   if (!isCategory(category)) {
     return c.json({ error: `Unknown category "${category}"` }, 400);
   }
   return c.json({ words: await listWords(category) });
+});
+
+wordRoutes.get("/:id", async (c) => {
+  const result = await getWordWithRelated(c.req.param("id"));
+  return result ? c.json(result) : c.json({ error: "Word not found" }, 404);
 });
 
 wordRoutes.post("/", async (c) => {

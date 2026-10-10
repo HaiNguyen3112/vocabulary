@@ -141,3 +141,56 @@ export function parseWordInput(raw: unknown): WordInputResult {
     value: { word, category, senses, relatedWordIds: [...new Set(relatedWordIds as string[])] },
   };
 }
+
+export const DEFAULT_WORDS_PAGE_SIZE = 20;
+export const MAX_WORDS_PAGE_SIZE = 100;
+export const MAX_WORD_SEARCH_LENGTH = 200;
+
+/** One page of the word list, plus the family members its words point to (for related-word labels). */
+export type WordPage = {
+  words: Word[];
+  related: Word[];
+  total: number;
+  page: number;
+  pageSize: number;
+};
+
+/** A single word with its family members, for the detail panel. */
+export type WordWithRelated = {
+  word: Word;
+  related: Word[];
+};
+
+export type WordPageQuery = {
+  search: string;
+  category: Category | null;
+  page: number;
+  pageSize: number;
+};
+
+export type WordPageQueryResult =
+  | { ok: true; value: WordPageQuery }
+  | { ok: false; error: string };
+
+function toPositiveInt(value: string | undefined, fallback: number): number | null {
+  if (value === undefined || value === "") return fallback;
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 1 ? number : null;
+}
+
+/** Validates `GET /api/words?page=&pageSize=&q=&category=`. */
+export function parseWordPageQuery(raw: Record<string, string | undefined>): WordPageQueryResult {
+  const page = toPositiveInt(raw.page, 1);
+  if (page === null) return { ok: false, error: "page must be a positive integer" };
+  const pageSize = toPositiveInt(raw.pageSize, DEFAULT_WORDS_PAGE_SIZE);
+  if (pageSize === null || pageSize > MAX_WORDS_PAGE_SIZE) {
+    return { ok: false, error: `pageSize must be between 1 and ${MAX_WORDS_PAGE_SIZE}` };
+  }
+  const search = (raw.q ?? "").trim();
+  if (search.length > MAX_WORD_SEARCH_LENGTH) return { ok: false, error: "Search is too long" };
+  const category = raw.category ? raw.category.toUpperCase() : null;
+  if (category !== null && !isCategory(category)) {
+    return { ok: false, error: `Unknown category "${raw.category}"` };
+  }
+  return { ok: true, value: { search, category, page, pageSize } };
+}

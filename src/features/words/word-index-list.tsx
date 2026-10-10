@@ -1,4 +1,4 @@
-import { Empty, List, type PaginationProps } from "antd";
+import { Empty, List } from "antd";
 import type { Word } from "@shared/word";
 import { CategoryTag } from "@/features/shared/category-tag";
 import { partsOfSpeechLabel } from "@/lib/word-labels";
@@ -8,19 +8,17 @@ type Props = {
   words: Word[];
   selectedId?: string;
   isLoading: boolean;
-  pagination: PaginationProps;
   onOpen: (id: string) => void;
 };
 
 /** Compact list for the desktop split view: word, word types, first meaning, category. */
-export function WordIndexList({ words, selectedId, isLoading, pagination, onOpen }: Props) {
+export function WordIndexList({ words, selectedId, isLoading, onOpen }: Props) {
   return (
     <List
       className={styles.list}
       loading={isLoading}
       dataSource={words}
       locale={{ emptyText: <Empty description="No words" /> }}
-      pagination={{ ...pagination, size: "small", align: "center", showLessItems: true }}
       renderItem={(word) => {
         const parts = partsOfSpeechLabel(word);
         return (

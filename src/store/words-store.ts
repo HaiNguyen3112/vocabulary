@@ -14,6 +14,8 @@ type WordsState = {
   words: Word[];
   status: LoadStatus;
   error: string | null;
+  /** Bumped after every add / edit / import so server-paged views refetch. */
+  revision: number;
   /** Loads once; pass `force` to refetch. */
   load: (force?: boolean) => Promise<void>;
   addWord: (input: WordInput) => Promise<Word>;
@@ -36,6 +38,7 @@ export const useWordsStore = create<WordsState>((set, get) => {
     words: [],
     status: "idle",
     error: null,
+    revision: 0,
 
     load: async (force = false) => {
       const { status } = get();
@@ -51,21 +54,24 @@ export const useWordsStore = create<WordsState>((set, get) => {
 
     addWord: async (input) => {
       const { word } = await createWordRequest(input);
-      set((state) => ({ words: [word, ...state.words] }));
+      set((state) => ({ words: [word, ...state.words], revision: state.revision + 1 }));
       if (input.relatedWordIds.length > 0) await refreshSilently();
       return word;
     },
 
     updateWord: async (id, input) => {
       const { word } = await updateWordRequest(id, input);
-      set((state) => ({ words: state.words.map((item) => (item.id === id ? word : item)) }));
+      set((state) => ({
+        words: state.words.map((item) => (item.id === id ? word : item)),
+        revision: state.revision + 1,
+      }));
       await refreshSilently();
       return word;
     },
 
     importWords: async (inputs) => {
       const result = await importWordsRequest(inputs);
-      set((state) => ({ words: [...result.inserted, ...state.words] }));
+      set((state) => ({ words: [...result.inserted, ...state.words], revision: state.revision + 1 }));
       return result;
     },
   };

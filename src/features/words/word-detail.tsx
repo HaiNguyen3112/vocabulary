@@ -1,5 +1,5 @@
 import { EditOutlined, SoundOutlined } from "@ant-design/icons";
-import { Button, Result, Spin, Tooltip, Typography } from "antd";
+import { Alert, Button, Result, Spin, Tooltip, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { wordEditPath } from "@/app/nav-items";
 import { SPEECH_LANG } from "@/constants/study";
@@ -7,7 +7,7 @@ import { CategoryTag } from "@/features/shared/category-tag";
 import { PageHeader } from "@/features/shared/page-header";
 import { ReviewStatusTag } from "@/features/shared/review-status-tag";
 import { WordSenses } from "@/features/shared/word-senses";
-import { useWords } from "@/hooks/use-words";
+import { useWord } from "@/hooks/use-word";
 import { speakText } from "@/lib/speech";
 import { RelatedWordsList } from "./related-words";
 import styles from "./word-detail.module.scss";
@@ -23,14 +23,10 @@ type Props = {
 /** Read-only word view shown beside (split view) or over (drawer) the word list. */
 export function WordDetail({ id, onClose, onOpenRelated }: Props) {
   const navigate = useNavigate();
-  const { words, isLoading } = useWords();
-  const wordsById = new Map(words.map((word) => [word.id, word]));
-  const word = wordsById.get(id);
+  const { data, isLoading, error, errorStatus, reload } = useWord(id);
 
-  if (!word) {
-    return isLoading ? (
-      <Spin size="large" />
-    ) : (
+  if (errorStatus === 404) {
+    return (
       <Result
         status="404"
         title="Word not found"
@@ -38,8 +34,21 @@ export function WordDetail({ id, onClose, onOpenRelated }: Props) {
       />
     );
   }
+  if (error && !data) {
+    return (
+      <Alert
+        type="error"
+        showIcon
+        message={error}
+        action={<Button size="small" onClick={reload}>Retry</Button>}
+      />
+    );
+  }
+  if (!data || (isLoading && data.word.id !== id)) return <Spin size="large" />;
 
-  const related = word.relatedWordIds.flatMap((relatedId) => wordsById.get(relatedId) ?? []);
+  const { word } = data;
+  const relatedById = new Map(data.related.map((item) => [item.id, item]));
+  const related = word.relatedWordIds.flatMap((relatedId) => relatedById.get(relatedId) ?? []);
 
   return (
     <div className={styles.detail}>

@@ -9,19 +9,21 @@ import { CategoryFilterSelect } from "@/features/shared/category-select";
 import { ExcelFileButton } from "@/features/shared/excel-file-button";
 import { useGoBack } from "@/hooks/use-go-back";
 import { useIsDesktop, useIsMobile } from "@/hooks/use-media-query";
-import { useWords } from "@/hooks/use-words";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useWordPage } from "@/hooks/use-word-page";
 import type { ParsedWordRows } from "@/lib/excel-rows";
-import { filterWords } from "@/lib/filter-words";
 import { ImportPreviewModal } from "./import-preview-modal";
 import { useWordListParams } from "./use-word-list-params";
 import { WordCardList } from "./word-card-list";
 import { WordDetailDrawer } from "./word-detail-drawer";
+import { WordListPager } from "./word-list-pager";
 import { getWordTableColumns } from "./word-table-columns";
 import { WordsSplitView } from "./words-split-view";
 import styles from "./words-workspace.module.scss";
 
 /** Clicks on these inside a row keep their own behaviour instead of opening the word. */
 const INTERACTIVE_SELECTOR = "button, a, input, .ant-tag, .ant-popover";
+const SEARCH_DEBOUNCE_MS = 300;
 
 type Props = {
   /** Open word (`/vocabulary-management/:id`): split view ≥992px, drawer below. */
@@ -30,7 +32,6 @@ type Props = {
 
 export function WordsWorkspace({ selectedId }: Props) {
   const navigate = useNavigate();
-  const { words, isLoading, error, reload } = useWords();
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   const [importRows, setImportRows] = useState<ParsedWordRows | null>(null);
@@ -38,23 +39,36 @@ export function WordsWorkspace({ selectedId }: Props) {
   // Drawer close = history back when the list opened it, so Back and X land on the same entry.
   const closeDrawer = useGoBack(ROUTES.words + listSearch);
 
-  const filteredWords = filterWords(words, { search, category });
-  const wordsById = new Map(words.map((word) => [word.id, word]));
+  const debouncedSearch = useDebouncedValue(search, SEARCH_DEBOUNCE_MS);
+  const { data, isLoading, error, reload } = useWordPage({
+    search: debouncedSearch,
+    category,
+    page,
+    pageSize: WORDS_PAGE_SIZE,
+  });
+  const words = data?.words ?? [];
+  const wordsById = new Map([...words, ...(data?.related ?? [])].map((word) => [word.id, word]));
   // Keep the filters in the URL so closing the word (or Back) restores the same list.
   const handleOpen = (id: string) => navigate(wordDetailPath(id) + listSearch);
   const handleEdit = (word: Word) => navigate(wordEditPath(word.id));
   const columns = getWordTableColumns({ wordsById, onOpen: handleOpen, onEdit: handleEdit });
-  const pagination = {
-    current: page,
+  const pager = {
+    // The server answers with the last page when the URL asks for one past the end.
+    page: data?.page ?? page,
     pageSize: WORDS_PAGE_SIZE,
-    showSizeChanger: false,
-    onChange: (nextPage: number) => updateParams({ page: nextPage > 1 ? String(nextPage) : "" }),
+    total: data?.total ?? 0,
+    isLarge: isMobile,
+    isStacked: isMobile,
+    onChange: (nextPage: number) => {
+      updateParams({ page: nextPage > 1 ? String(nextPage) : "" });
+      if (!isDesktop) window.scrollTo({ top: 0 });
+    },
   };
 
   return (
     <div className={`${styles.workspace} ${isDesktop ? styles.desktop : ""}`}>
       <Typography.Title level={3} className={styles.title}>
-        Word List <span className={styles.count}>({words.length})</span>
+        Word List {data && <span className={styles.count}>({data.total.toLocaleString()})</span>}
       </Typography.Title>
 
       <div className={styles.toolbar}>
@@ -80,25 +94,24 @@ export function WordsWorkspace({ selectedId }: Props) {
           type="error"
           showIcon
           message={error}
-          action={<Button size="small" onClick={() => void reload()}>Retry</Button>}
+          action={<Button size="small" onClick={reload}>Retry</Button>}
         />
       )}
 
       {isDesktop ? (
         <WordsSplitView
-          words={filteredWords}
+          words={words}
           selectedId={selectedId}
           isLoading={isLoading}
-          pagination={pagination}
+          pager={pager}
           onOpen={handleOpen}
           onClose={() => navigate(ROUTES.words + listSearch)}
         />
       ) : isMobile ? (
         <WordCardList
-          words={filteredWords}
+          words={words}
           wordsById={wordsById}
           isLoading={isLoading}
-          pagination={pagination}
           onOpen={handleOpen}
           onEdit={handleEdit}
         />
@@ -107,8 +120,8 @@ export function WordsWorkspace({ selectedId }: Props) {
           rowKey="id"
           loading={isLoading}
           columns={columns}
-          dataSource={filteredWords}
-          pagination={pagination}
+          dataSource={words}
+          pagination={false}
           scroll={{ x: true }}
           rowClassName={styles.row}
           onRow={(word) => ({
@@ -118,6 +131,8 @@ export function WordsWorkspace({ selectedId }: Props) {
           })}
         />
       )}
+
+      {!isDesktop && pager.total > 0 && <WordListPager {...pager} className={styles.pager} />}
 
       {!isDesktop && (
         <WordDetailDrawer

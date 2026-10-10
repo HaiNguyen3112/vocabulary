@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { formatDefinition, normalizeDefinition, normalizeWordKey, parseWordInput } from "./word";
+import {
+  DEFAULT_WORDS_PAGE_SIZE,
+  MAX_WORDS_PAGE_SIZE,
+  formatDefinition,
+  normalizeDefinition,
+  normalizeWordKey,
+  parseWordInput,
+  parseWordPageQuery,
+} from "./word";
 
 describe("normalizeWordKey", () => {
   it("ignores case and extra whitespace", () => {
@@ -80,5 +88,28 @@ describe("parseWordInput", () => {
     [null, "Invalid payload"],
   ])("rejects %j", (raw, error) => {
     expect(parseWordInput(raw)).toEqual({ ok: false, error });
+  });
+});
+
+describe("parseWordPageQuery", () => {
+  it("applies defaults", () => {
+    expect(parseWordPageQuery({})).toEqual({
+      ok: true,
+      value: { search: "", category: null, page: 1, pageSize: DEFAULT_WORDS_PAGE_SIZE },
+    });
+  });
+
+  it("parses page, size, trimmed search and category", () => {
+    expect(parseWordPageQuery({ page: "3", pageSize: "50", q: "  tip ", category: "personal" })).toEqual({
+      ok: true,
+      value: { search: "tip", category: "PERSONAL", page: 3, pageSize: 50 },
+    });
+  });
+
+  it("rejects bad numbers and unknown categories", () => {
+    expect(parseWordPageQuery({ page: "0" }).ok).toBe(false);
+    expect(parseWordPageQuery({ page: "1.5" }).ok).toBe(false);
+    expect(parseWordPageQuery({ pageSize: String(MAX_WORDS_PAGE_SIZE + 1) }).ok).toBe(false);
+    expect(parseWordPageQuery({ category: "nope" }).ok).toBe(false);
   });
 });

@@ -1,0 +1,58 @@
+@use "../../styles/tokens" as *;
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm $space-md;
+}
+
+.range {
+  color: $color-text-muted;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.controls {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $space-sm;
+}
+
+.jump {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-xs;
+  white-space: nowrap;
+}
+
+.input {
+  width: 56px;
+
+  :global(.ant-input-number-input) {
+    text-align: center;
+  }
+}
+
+.of {
+  color: $color-text-muted;
+}
+
+.stacked {
+  flex-direction: column-reverse;
+  align-items: stretch;
+  gap: $space-xs;
+
+  .range {
+    text-align: center;
+    font-size: 12px;
+  }
+
+  // Prev / Next share the width so they are easy to hit.
+  .controls > :global(.ant-btn) {
+    flex: 1;
+  }
+}
