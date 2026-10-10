@@ -19,8 +19,10 @@ type Props = {
   kindFor: (word: StudyWord) => ExerciseKind;
   requeueWrong: boolean;
   onExit: () => void;
-  /** Start over — the caller re-mounts the session (new `key`). Omit to hide "Review again". */
+  /** Start over — the caller re-mounts the session (new `key`). Omit to hide the restart button. */
   onRestart?: () => void;
+  restartLabel?: string;
+  exitLabel?: string;
 };
 
 const CHECK_HINT = (
@@ -61,7 +63,17 @@ function renderExercise(exercise: Exercise, disabled: boolean, onAnswer: (result
 }
 
 /** One study session: progress header, the current exercise, feedback, then a summary. */
-export function ExerciseSession({ title, words, pool, kindFor, requeueWrong, onExit, onRestart }: Props) {
+export function ExerciseSession({
+  title,
+  words,
+  pool,
+  kindFor,
+  requeueWrong,
+  onExit,
+  onRestart,
+  restartLabel = "Review again",
+  exitLabel = "Back to hub",
+}: Props) {
   const { modal } = App.useApp();
   const session = useExerciseSession({ words, pool, kindFor, requeueWrong });
   const { current, index, total, feedback, isDone } = session;
@@ -90,7 +102,7 @@ export function ExerciseSession({ title, words, pool, kindFor, requeueWrong, onE
     return (
       <div className={styles.session}>
         <Empty className={styles.empty} description="No words to study" />
-        <Button onClick={onExit}>Back to hub</Button>
+        <Button onClick={onExit}>{exitLabel}</Button>
       </div>
     );
   }
@@ -98,7 +110,13 @@ export function ExerciseSession({ title, words, pool, kindFor, requeueWrong, onE
   if (isDone || !current) {
     return (
       <div className={styles.session}>
-        <SessionSummary results={session.results} onRestart={onRestart} onExit={onExit} />
+        <SessionSummary
+          results={session.results}
+          onRestart={onRestart}
+          onExit={onExit}
+          restartLabel={restartLabel}
+          exitLabel={exitLabel}
+        />
       </div>
     );
   }

@@ -8,13 +8,21 @@ import styles from "./exercise-session.module.scss";
 
 type Props = {
   results: readonly SessionResult[];
-  /** Omit to hide "Review again". */
+  /** Omit to hide the restart button. */
   onRestart?: () => void;
   onExit: () => void;
+  restartLabel?: string;
+  exitLabel?: string;
 };
 
 /** End of a session: accuracy (first attempts), counts per grade and the missed words. */
-export function SessionSummary({ results, onRestart, onExit }: Props) {
+export function SessionSummary({
+  results,
+  onRestart,
+  onExit,
+  restartLabel = "Review again",
+  exitLabel = "Back to hub",
+}: Props) {
   const count = (grade: SessionResult["grade"]) => results.filter((result) => result.grade === grade).length;
   const correct = count("correct");
   const accuracy = results.length > 0 ? Math.round((correct / results.length) * 100) : 0;
@@ -65,11 +73,11 @@ export function SessionSummary({ results, onRestart, onExit }: Props) {
       <div className={styles.summaryActions}>
         {onRestart && (
           <Button type="primary" size="large" icon={<ReloadOutlined />} onClick={onRestart}>
-            Review again
+            {restartLabel}
           </Button>
         )}
         <Button size="large" onClick={onExit}>
-          Back to hub
+          {exitLabel}
         </Button>
       </div>
     </section>

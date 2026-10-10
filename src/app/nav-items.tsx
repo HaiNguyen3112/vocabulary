@@ -1,14 +1,18 @@
 import { PlusCircleOutlined, ReadOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
+import type { PracticeMode } from "@/constants/study-modes";
 
 export const ROUTES = {
   study: "/",
+  studyReview: "/study/review",
+  studyMode: "/study/:mode",
   words: "/vocabulary-management",
   wordNew: "/vocabulary-management/new",
   wordDetail: "/vocabulary-management/:id",
   wordEdit: "/vocabulary-management/:id/edit",
 } as const;
 
+export const studyModePath = (mode: PracticeMode) => `/study/${mode}`;
 export const wordDetailPath = (id: string) => `${ROUTES.words}/${encodeURIComponent(id)}`;
 export const wordEditPath = (id: string) => `${wordDetailPath(id)}/edit`;
 

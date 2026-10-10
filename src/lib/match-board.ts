@@ -17,8 +17,11 @@ export type MatchCard = {
   pairKey: string;
 };
 
-/** Picks random pairs with distinct words so every word card has exactly one partner. */
-export function pickPairs<T extends MatchSource>(
+/**
+ * Picks random items with distinct words (case/space-insensitive) so every word card has exactly one
+ * partner; also used to pick free-practice words.
+ */
+export function pickPairs<T extends Pick<MatchSource, "word">>(
   words: readonly T[],
   pairCount: number,
   random: () => number = Math.random,

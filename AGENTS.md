@@ -1,6 +1,6 @@
 # AGENTS.md — Study Vocabulary
 
-Web app học từ vựng tiếng Anh cá nhân: chơi ghép cặp **từ ↔ nghĩa** (có phát âm) và quản lý kho từ (thêm, tìm, lọc, import Excel). Chủ app trao đổi bằng **tiếng Việt** → trả lời tiếng Việt, ngắn, ưu tiên kết quả chạy thật trên web/mobile.
+Web app học từ vựng tiếng Anh cá nhân: trang Study (hub) có **ôn tập lặp lại ngắt quãng** (FSRS, tiến độ theo từng learner — đăng ký bằng tên + user ID, không mật khẩu) và luyện tự do (ghép cặp **từ ↔ nghĩa**, flashcards, trắc nghiệm, gõ từ, nghe & viết, điền vào chỗ trống — có phát âm), cùng quản lý kho từ (thêm, tìm, lọc, import Excel). Chủ app trao đổi bằng **tiếng Việt** → trả lời tiếng Việt, ngắn, ưu tiên kết quả chạy thật trên web/mobile.
 
 Khung cấu trúc lấy từ `bistro-hub` (layers, rules, docs, Hono + MongoDB) — UI giữ **Ant Design**.
 
@@ -18,7 +18,7 @@ Khung cấu trúc lấy từ `bistro-hub` (layers, rules, docs, Hono + MongoDB) 
 
 - Vite + React 18 + TypeScript **`strict: true`**
 - API: **Hono** + **MongoDB** (`server/`) — same repo, one deploy; URI via `.env`
-- State: Zustand cache over the API (`src/store/words-store.ts`)
+- State: Zustand cache over the API (`src/store/words-store.ts`, `reviews-store.ts`; learner in `learner-store.ts` + localStorage)
 - UI: Ant Design 5 + SCSS modules; tokens in `src/styles/`
 - Excel import: `xlsx` (client-side parse → validated → `POST /api/words/bulk`)
 - Test: Vitest for pure `lib/` + server input validation

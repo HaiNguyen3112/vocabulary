@@ -16,6 +16,12 @@ $session-max-width: 720px;
   padding: $space-lg * 2 0;
 }
 
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: $space-lg * 2 0;
+}
+
 // Header: title · progress · leave
 .header {
   display: flex;
