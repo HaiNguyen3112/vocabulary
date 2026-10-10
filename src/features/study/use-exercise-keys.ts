@@ -17,7 +17,7 @@ function parseDigit(key: string): number | null {
 /**
  * One window `keydown` listener for exercise shortcuts. Ignores Ctrl/Cmd/Alt combos, keys
  * already handled (e.g. Enter submitting a text field), keys inside dialogs, Enter / Space on a
- * focused button (its own click handles them) and everything typed in a text field but Enter.
+ * focused button (its own click handles them) and everything typed in a text field but Enter / Escape.
  */
 export function useExerciseKeys(handlers: ExerciseKeyHandlers) {
   const latestRef = useRef(handlers);
@@ -40,12 +40,12 @@ export function useExerciseKeys(handlers: ExerciseKeyHandlers) {
         onEnter();
         return;
       }
-      if (target && isTypingTarget(target.tagName, target.isContentEditable)) return;
-
-      if (event.key === "Escape" && onEscape) {
-        onEscape();
+      if (event.key === "Escape") {
+        if (onEscape) onEscape();
         return;
       }
+      if (target && isTypingTarget(target.tagName, target.isContentEditable)) return;
+
       if (event.key === " " && onSpace && !isButton) {
         event.preventDefault();
         onSpace();

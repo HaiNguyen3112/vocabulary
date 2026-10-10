@@ -25,11 +25,11 @@ export function usePracticeState(): PracticeState {
   return readPracticeState(useLocation().state);
 }
 
-/** Back to the hub, keeping its category + file deck. */
+/** Back to the hub, keeping its category + file deck; replaces the session entry so Back skips it. */
 export function useBackToHub(): () => void {
   const navigate = useNavigate();
   const { state } = useLocation();
-  return () => navigate(ROUTES.study, { state: readPracticeState(state) });
+  return () => navigate(ROUTES.study, { state: readPracticeState(state), replace: true });
 }
 
 /** Bank words keep their id (reviews are recorded); file-deck words get `id: null` (never recorded). */

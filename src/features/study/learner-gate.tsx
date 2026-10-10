@@ -116,6 +116,7 @@ export function LearnerGate({ children }: { children: ReactNode }) {
             children: (
               <Form
                 form={signInForm}
+                name="sign-in"
                 layout="vertical"
                 onFinish={() => void handleSignIn()}
               >
@@ -150,6 +151,7 @@ export function LearnerGate({ children }: { children: ReactNode }) {
             children: (
               <Form
                 form={registerForm}
+                name="register"
                 layout="vertical"
                 onFinish={handleRegister}
               >

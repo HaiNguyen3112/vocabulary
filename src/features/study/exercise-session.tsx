@@ -78,6 +78,15 @@ export function ExerciseSession({
   const session = useExerciseSession({ words, pool, kindFor, requeueWrong });
   const { current, index, total, feedback, isDone } = session;
   const isConfirmOpenRef = useRef(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+
+  // After "Stay", focus the answer field if there is one; otherwise drop focus so Space / digits
+  // reach the session shortcuts instead of re-pressing the ✕ button.
+  const restoreFocus = () => {
+    const input = stageRef.current?.querySelector<HTMLInputElement>("input:not(:disabled)");
+    if (input) input.focus();
+    else if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+  };
 
   const handleExit = () => {
     if (isConfirmOpenRef.current) return;
@@ -87,8 +96,10 @@ export function ExerciseSession({
       okText: "Leave",
       cancelText: "Stay",
       onOk: onExit,
+      focusTriggerAfterClose: false,
       afterClose: () => {
         isConfirmOpenRef.current = false;
+        restoreFocus();
       },
     });
   };
@@ -136,7 +147,7 @@ export function ExerciseSession({
         <Button type="text" icon={<CloseOutlined />} onClick={handleExit} aria-label="Leave session" />
       </header>
 
-      <div key={index} className={styles.stage}>
+      <div key={index} ref={stageRef} className={styles.stage}>
         {renderExercise(current, feedback !== null, session.answer)}
       </div>
 

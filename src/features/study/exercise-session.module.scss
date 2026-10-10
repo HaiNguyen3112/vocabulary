@@ -22,15 +22,23 @@ $session-max-width: 720px;
   padding: $space-lg * 2 0;
 }
 
-// Header: title · progress · leave
+// Header: title · progress · leave — one row; a long title truncates so ✕ never wraps.
 .header {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: $space-sm $space-md;
+
+  > :global(.ant-btn) {
+    flex: none;
+  }
 }
 
 .title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   margin: 0;
   font-family: $font-display;
   font-size: 20px;
@@ -39,8 +47,8 @@ $session-max-width: 720px;
 }
 
 .progress {
-  flex: 1;
-  min-width: 160px;
+  flex: 1 1 96px;
+  min-width: 72px;
   display: flex;
   align-items: center;
   gap: $space-sm;
