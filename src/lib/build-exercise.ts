@@ -14,25 +14,35 @@ function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/** Escaped regex source; whitespace inside a phrase matches any run of whitespace. */
+function toPattern(text: string): string {
+  return escapeRegExp(text).replace(/\s+/g, "\\s+");
+}
+
+/** Wraps `body` so it only matches whole words. */
+function wholeWord(body: string): string {
+  return `(?<![\\p{L}\\p{N}])(?:${body})(?![\\p{L}\\p{N}])`;
+}
+
 /** The word plus simple inflections; phrases match any whitespace between words. */
 function wordForms(word: string): string[] {
   const base = word.trim();
   const forms = [base, `${base}s`, `${base}es`, `${base}ed`, `${base}d`, `${base}ing`];
   if (base.endsWith("e")) forms.push(`${base.slice(0, -1)}ing`);
-  return forms.map((form) => escapeRegExp(form).replace(/\s+/g, "\\s+"));
+  return forms.map(toPattern);
 }
 
-/** First example containing the word (or a simple form); every occurrence becomes `___`. */
+/** First example containing the word (or a simple form); each occurrence of that matched form becomes `___`. */
 export function findCloze(word: StudyWord): { sentence: string; answer: string } | null {
   if (!word.word.trim()) return null;
   const forms = [...new Set(wordForms(word.word))].sort((a, b) => b.length - a.length);
-  const pattern = `(?<![\\p{L}\\p{N}])(?:${forms.join("|")})(?![\\p{L}\\p{N}])`;
+  const pattern = wholeWord(forms.join("|"));
   for (const sense of word.senses) {
     for (const example of sense.examples) {
       const first = new RegExp(pattern, "iu").exec(example);
       if (!first) continue;
       return {
-        sentence: example.replace(new RegExp(pattern, "giu"), BLANK),
+        sentence: example.replace(new RegExp(wholeWord(toPattern(first[0])), "giu"), BLANK),
         answer: first[0].toLowerCase(),
       };
     }
@@ -69,6 +79,8 @@ function buildChoice(
   for (const { item } of ranked) {
     if (options.length >= CHOICE_OPTION_COUNT) break;
     if (normalizeWordKey(item.word) === answerKey) continue;
+    // Same meaning would be a second correct answer in either direction.
+    if (formatDefinition(item.senses) === definition) continue;
     const text = toText(item);
     if (seen.has(dedupeKey(text))) continue;
     seen.add(dedupeKey(text));

@@ -38,6 +38,19 @@ describe("buildExercise choice", () => {
     expect(ex.prompt).toBe("big");
   });
 
+  it("never offers a second correct answer (meaning-to-word)", () => {
+    const ex = buildExercise(pool[0], "choice", pool, { direction: "meaning-to-word", random });
+    if (ex.kind !== "choice") throw new Error("expected choice");
+    expect(ex.options).not.toContain("large");
+  });
+
+  it("never offers a second correct answer (word-to-meaning)", () => {
+    const ex = buildExercise(pool[0], "choice", pool, { direction: "word-to-meaning", random });
+    if (ex.kind !== "choice") throw new Error("expected choice");
+    expect(ex.options.filter((o) => o === "lớn")).toHaveLength(1);
+    expect(ex.answer).toBe("lớn");
+  });
+
   it("defaults to word-to-meaning", () => {
     const ex = buildExercise(pool[0], "choice", pool, { random });
     expect(ex.kind === "choice" && ex.direction).toBe("word-to-meaning");
@@ -64,10 +77,17 @@ describe("buildExercise choice", () => {
 });
 
 describe("findCloze", () => {
-  it("replaces every occurrence of word forms", () => {
+  it("blanks only the first matched form", () => {
     expect(findCloze(w("produce", "sx", "verb", ["They produced it and produce more."]))).toEqual({
-      sentence: "They ___ it and ___ more.",
+      sentence: "They ___ it and produce more.",
       answer: "produced",
+    });
+  });
+
+  it("blanks every occurrence of the matched form, case-insensitively", () => {
+    expect(findCloze(w("produce", "sx", "verb", ["Produce what you produce."]))).toEqual({
+      sentence: "___ what you ___.",
+      answer: "produce",
     });
   });
 
