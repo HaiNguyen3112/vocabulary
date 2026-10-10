@@ -1,14 +1,13 @@
 @use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
 
 .page {
   max-width: 760px;
 }
 
 .form {
-  padding: $space-md;
-  border: 1px solid $color-border;
-  border-radius: $radius;
-  background: $color-surface;
+  @include index-card($ruled: false);
+  padding: $space-md $space-md $space-md 30px;
 }
 
 .actions {
