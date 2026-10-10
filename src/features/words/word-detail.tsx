@@ -1,6 +1,6 @@
-import { EditOutlined, SoundOutlined } from "@ant-design/icons";
+import { CloseOutlined, EditOutlined, SoundOutlined } from "@ant-design/icons";
 import { Button, Result, Spin, Typography } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES, wordDetailPath, wordEditPath } from "@/app/nav-items";
 import { SPEECH_LANG } from "@/constants/study";
 import { CategoryTag } from "@/features/shared/category-tag";
@@ -12,9 +12,18 @@ import { speakText } from "@/lib/speech";
 import { RelatedWordsList } from "./related-words";
 import styles from "./word-detail.module.scss";
 
-/** Read-only word page: meanings with examples + related words (each opens its own page). */
-export function WordDetail({ id }: { id: string }) {
+type Props = {
+  id: string;
+  /** "panel" = right side of the desktop split view: Close instead of Back. */
+  variant?: "page" | "panel";
+  onClose?: () => void;
+};
+
+/** Read-only word view: meanings with examples + related words (each opens its own page). */
+export function WordDetail({ id, variant = "page", onClose }: Props) {
   const navigate = useNavigate();
+  const { search: listSearch } = useLocation();
+  const isPanel = variant === "panel";
   const goBack = useGoBack(ROUTES.words);
   const { words, isLoading } = useWords();
   const wordsById = new Map(words.map((word) => [word.id, word]));
@@ -38,7 +47,7 @@ export function WordDetail({ id }: { id: string }) {
     <div className={styles.detail}>
       <PageHeader
         backLabel="Back"
-        onBack={goBack}
+        onBack={isPanel ? undefined : goBack}
         title={
           <>
             {word.word}
@@ -53,9 +62,12 @@ export function WordDetail({ id }: { id: string }) {
           </>
         }
         extra={
-          <Button type="primary" icon={<EditOutlined />} onClick={() => navigate(wordEditPath(word.id))}>
-            Edit
-          </Button>
+          <>
+            <Button type="primary" icon={<EditOutlined />} onClick={() => navigate(wordEditPath(word.id))}>
+              Edit
+            </Button>
+            {isPanel && <Button type="text" icon={<CloseOutlined />} aria-label="Close" onClick={onClose} />}
+          </>
         }
       />
 
@@ -71,7 +83,7 @@ export function WordDetail({ id }: { id: string }) {
           Related words{related.length > 0 && ` (${related.length})`}
         </Typography.Text>
         {related.length > 0 ? (
-          <RelatedWordsList words={related} onOpen={(relatedId) => navigate(wordDetailPath(relatedId))} />
+          <RelatedWordsList words={related} onOpen={(relatedId) => navigate(wordDetailPath(relatedId) + listSearch)} />
         ) : (
           <Typography.Text type="secondary">None yet — add them with Edit.</Typography.Text>
         )}
