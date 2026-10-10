@@ -92,7 +92,7 @@ Bottom tabs unchanged (Study · Words · Add); `findNavKey` keeps `/study/*` und
 
 ```ts
 type LearnerDoc = {
-  _id: string;        // ObjectId hex
+  _id: string;        // randomUUID(), like words
   userId: string;     // as typed (trimmed)
   userIdKey: string;  // lowercase — unique index
   name: string;       // display name, 1–50 chars, may repeat
