@@ -8,3 +8,11 @@ export const SPEECH_LANG = "en-US";
 /** Board grid columns (definition, word, definition, word); 2 below `SMALL_BREAKPOINT_PX`. */
 export const BOARD_COLUMNS = 4;
 export const BOARD_COLUMNS_SMALL = 2;
+/** New words introduced per day in the review queue. */
+export const NEW_WORDS_PER_DAY = 10;
+/** Exercises in one scheduled study session. */
+export const SESSION_SIZE = 20;
+/** Exercises in one free-practice session. */
+export const PRACTICE_SESSION_SIZE = 15;
+/** Options (answer + distractors) shown in a multiple-choice exercise. */
+export const CHOICE_OPTION_COUNT = 4;

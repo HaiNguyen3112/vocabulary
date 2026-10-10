@@ -1,0 +1,98 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+.hub {
+  width: 100%;
+  max-width: $board-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: 700;
+  color: $color-text;
+}
+
+// Today card
+.today {
+  @include index-card($ruled: false);
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-lg $space-lg $space-lg 38px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: $space-md;
+  margin: 0 0 $space-md;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statLabel {
+  color: $color-text-muted;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.statValue {
+  margin: 0;
+  color: $color-primary;
+  font-family: $font-display;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.start {
+  max-width: 320px;
+}
+
+// Free practice
+.practice {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.practiceHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm $space-md;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $space-sm;
+}
+
+@media (max-width: $bp-mobile - 1px) {
+  .today {
+    padding: $space-md $space-md $space-md 30px;
+  }
+
+  .statValue {
+    font-size: 28px;
+  }
+
+  .start {
+    max-width: none;
+  }
+}

@@ -1,5 +1,5 @@
-import { StudyWorkspace } from "@/features/study/study-workspace";
+import { StudyHub } from "@/features/study/study-hub";
 
 export function StudyPage() {
-  return <StudyWorkspace />;
+  return <StudyHub />;
 }

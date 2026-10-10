@@ -1,5 +1,5 @@
 import { MongoClient, type Db } from "mongodb";
-import type { WordDoc } from "./types";
+import type { LearnerDoc, ReviewDoc, WordDoc } from "./types";
 
 const DEFAULT_DB_NAME = "vocabulary";
 const CONNECT_TIMEOUT_MS = 5_000;
@@ -76,6 +76,8 @@ export function getDb(): Db {
 
 export const collections = {
   words: () => getDb().collection<WordDoc>("words"),
+  learners: () => getDb().collection<LearnerDoc>("learners"),
+  reviews: () => getDb().collection<ReviewDoc>("reviews"),
 };
 
 async function ensureIndexes(database: Db): Promise<void> {
@@ -83,4 +85,6 @@ async function ensureIndexes(database: Db): Promise<void> {
   await database.collection("words").createIndex({ wordKey: 1 });
   await database.collection("words").createIndex({ category: 1, createdAt: -1 });
   await database.collection("words").createIndex({ familyId: 1 }, { sparse: true });
+  await database.collection("learners").createIndex({ userIdKey: 1 }, { unique: true });
+  await database.collection("reviews").createIndex({ learnerId: 1, dueAt: 1 });
 }

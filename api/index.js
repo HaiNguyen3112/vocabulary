@@ -2,7 +2,7 @@
 import { handle } from "@hono/node-server/vercel";
 
 // server/app.ts
-import { Hono as Hono2 } from "hono";
+import { Hono as Hono3 } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 
@@ -57,16 +57,233 @@ function getDb() {
   return db;
 }
 var collections = {
-  words: () => getDb().collection("words")
+  words: () => getDb().collection("words"),
+  learners: () => getDb().collection("learners"),
+  reviews: () => getDb().collection("reviews")
 };
 async function ensureIndexes(database) {
   await database.collection("words").createIndex({ wordKey: 1 });
   await database.collection("words").createIndex({ category: 1, createdAt: -1 });
   await database.collection("words").createIndex({ familyId: 1 }, { sparse: true });
+  await database.collection("learners").createIndex({ userIdKey: 1 }, { unique: true });
+  await database.collection("reviews").createIndex({ learnerId: 1, dueAt: 1 });
 }
 
-// server/routes/words.ts
+// server/routes/learners.ts
 import { Hono } from "hono";
+
+// shared/learner.ts
+var USER_ID_PATTERN = /^[a-z0-9_.-]{3,30}$/;
+var MAX_LEARNER_NAME_LENGTH = 50;
+function normalizeUserIdKey(userId) {
+  return userId.trim().toLowerCase();
+}
+function toText(value) {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number") return String(value);
+  return "";
+}
+function parseLearnerInput(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { ok: false, error: "Invalid payload" };
+  }
+  const body = raw;
+  const userId = normalizeUserIdKey(toText(body.userId));
+  const name = toText(body.name);
+  if (!USER_ID_PATTERN.test(userId)) {
+    return { ok: false, error: "User ID must be 3\u201330 characters: a-z, 0-9, _ . -" };
+  }
+  if (!name) return { ok: false, error: "Missing name" };
+  if (name.length > MAX_LEARNER_NAME_LENGTH) return { ok: false, error: "Name is too long" };
+  return { ok: true, value: { userId, name } };
+}
+
+// shared/review.ts
+var RATINGS = ["again", "hard", "good", "easy"];
+function toText2(value) {
+  if (typeof value === "string") return value.trim();
+  if (typeof value === "number") return String(value);
+  return "";
+}
+function isRating(value) {
+  return RATINGS.includes(value);
+}
+function parseReviewInput(raw) {
+  if (!raw || typeof raw !== "object") {
+    return { ok: false, error: "Invalid payload" };
+  }
+  const body = raw;
+  const wordId = toText2(body.wordId);
+  const rating = toText2(body.rating);
+  if (!wordId) return { ok: false, error: "Missing wordId" };
+  if (!isRating(rating)) return { ok: false, error: `Unknown rating "${rating}"` };
+  return { ok: true, value: { wordId, rating } };
+}
+
+// server/services/learners.ts
+import { randomUUID } from "node:crypto";
+
+// server/services/mappers.ts
+function mapWord(row, relatedWordIds) {
+  return {
+    id: row._id,
+    word: row.word,
+    category: row.category,
+    senses: row.senses,
+    relatedWordIds,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt?.toISOString() ?? null
+  };
+}
+function mapLearner(doc) {
+  return { id: doc._id, userId: doc.userId, name: doc.name };
+}
+function mapReview(doc) {
+  return {
+    wordId: doc.wordId,
+    state: doc.card.state,
+    dueAt: doc.dueAt.toISOString(),
+    reps: doc.card.reps,
+    lapses: doc.card.lapses,
+    firstReviewedAt: doc.firstReviewedAt.toISOString()
+  };
+}
+
+// server/services/learners.ts
+var DUPLICATE_KEY_CODE = 11e3;
+async function createLearner(input) {
+  const doc = {
+    _id: randomUUID(),
+    userId: input.userId,
+    userIdKey: normalizeUserIdKey(input.userId),
+    name: input.name,
+    createdAt: /* @__PURE__ */ new Date()
+  };
+  try {
+    await collections.learners().insertOne(doc);
+  } catch (error) {
+    if (error.code === DUPLICATE_KEY_CODE) return "exists";
+    throw error;
+  }
+  return mapLearner(doc);
+}
+async function findLearnerByUserId(userId) {
+  const doc = await collections.learners().findOne({ userIdKey: normalizeUserIdKey(userId) });
+  return doc ? mapLearner(doc) : null;
+}
+async function learnerExists(id) {
+  const doc = await collections.learners().findOne({ _id: id }, { projection: { _id: 1 } });
+  return doc !== null;
+}
+
+// server/services/scheduler.ts
+import { createEmptyCard, fsrs, Rating as FsrsRating, State } from "ts-fsrs";
+var scheduler = fsrs({ enable_fuzz: true });
+var RATING_TO_FSRS = {
+  again: FsrsRating.Again,
+  hard: FsrsRating.Hard,
+  good: FsrsRating.Good,
+  easy: FsrsRating.Easy
+};
+var STATE_TO_FSRS = {
+  new: State.New,
+  learning: State.Learning,
+  review: State.Review,
+  relearning: State.Relearning
+};
+var STATE_FROM_FSRS = {
+  [State.New]: "new",
+  [State.Learning]: "learning",
+  [State.Review]: "review",
+  [State.Relearning]: "relearning"
+};
+function toFsrsCard(card) {
+  return {
+    ...card,
+    state: STATE_TO_FSRS[card.state],
+    last_review: card.last_review ?? void 0
+  };
+}
+function toStoredCard(card) {
+  return {
+    due: card.due,
+    stability: card.stability,
+    difficulty: card.difficulty,
+    elapsed_days: card.elapsed_days,
+    scheduled_days: card.scheduled_days,
+    learning_steps: card.learning_steps,
+    reps: card.reps,
+    lapses: card.lapses,
+    state: STATE_FROM_FSRS[card.state],
+    last_review: card.last_review ?? null
+  };
+}
+function scheduleReview(previous, rating, now, engine = scheduler) {
+  const card = previous ? toFsrsCard(previous) : createEmptyCard(now);
+  const { card: next } = engine.next(card, now, RATING_TO_FSRS[rating]);
+  return toStoredCard(next);
+}
+
+// server/services/reviews.ts
+async function listReviews(learnerId) {
+  const docs = await collections.reviews().find({ learnerId }).toArray();
+  return docs.map(mapReview);
+}
+async function recordReview(learnerId, wordId, rating, now = /* @__PURE__ */ new Date()) {
+  const _id = `${learnerId}:${wordId}`;
+  const existing = await collections.reviews().findOne({ _id });
+  const card = scheduleReview(existing?.card ?? null, rating, now);
+  const doc = {
+    _id,
+    learnerId,
+    wordId,
+    card,
+    dueAt: card.due,
+    firstReviewedAt: existing?.firstReviewedAt ?? now,
+    updatedAt: now
+  };
+  await collections.reviews().updateOne(
+    { _id },
+    {
+      $set: { card: doc.card, dueAt: doc.dueAt, updatedAt: doc.updatedAt },
+      $setOnInsert: { learnerId, wordId, firstReviewedAt: doc.firstReviewedAt }
+    },
+    { upsert: true }
+  );
+  return mapReview(doc);
+}
+
+// server/routes/learners.ts
+var learnerRoutes = new Hono();
+learnerRoutes.post("/", async (c) => {
+  const parsed = parseLearnerInput(await c.req.json().catch(() => null));
+  if (!parsed.ok) return c.json({ error: parsed.error }, 400);
+  const learner = await createLearner(parsed.value);
+  if (learner === "exists") return c.json({ error: "User ID already exists" }, 409);
+  return c.json({ learner }, 201);
+});
+learnerRoutes.get("/by-user-id/:userId", async (c) => {
+  const learner = await findLearnerByUserId(c.req.param("userId"));
+  return learner ? c.json({ learner }) : c.json({ error: "User ID not found" }, 404);
+});
+learnerRoutes.get("/:learnerId/reviews", async (c) => {
+  const learnerId = c.req.param("learnerId");
+  if (!await learnerExists(learnerId)) return c.json({ error: "Learner not found" }, 404);
+  return c.json({ reviews: await listReviews(learnerId) });
+});
+learnerRoutes.post("/:learnerId/reviews", async (c) => {
+  const learnerId = c.req.param("learnerId");
+  const parsed = parseReviewInput(await c.req.json().catch(() => null));
+  if (!parsed.ok) return c.json({ error: parsed.error }, 400);
+  if (!await learnerExists(learnerId)) return c.json({ error: "Learner not found" }, 404);
+  const word = await collections.words().findOne({ _id: parsed.value.wordId }, { projection: { _id: 1 } });
+  if (!word) return c.json({ error: "Word not found" }, 404);
+  const { wordId, rating } = parsed.value;
+  return c.json({ review: await recordReview(learnerId, wordId, rating) });
+});
+
+// server/routes/words.ts
+import { Hono as Hono2 } from "hono";
 
 // shared/categories.ts
 var CATEGORIES = [
@@ -162,18 +379,18 @@ function normalizeWordKey(word) {
 function normalizeDefinition(definition) {
   return definition.replace(/\\n/g, "\n").trim();
 }
-function toText(value) {
+function toText3(value) {
   if (typeof value === "string") return value.trim();
   if (typeof value === "number") return String(value);
   return "";
 }
 function toExamples(value) {
-  const list = Array.isArray(value) ? value : toText(value).split("\n");
-  return list.map(toText).filter(Boolean);
+  const list = Array.isArray(value) ? value : toText3(value).split("\n");
+  return list.map(toText3).filter(Boolean);
 }
 function parseSenses(raw) {
   if (raw.senses === void 0) {
-    const definition = normalizeDefinition(toText(raw.definition));
+    const definition = normalizeDefinition(toText3(raw.definition));
     if (!definition) return "Missing definition";
     const senses2 = parseLegacyDefinition(definition);
     const partOfSpeech = parsePartOfSpeech(raw.partOfSpeech);
@@ -189,7 +406,7 @@ function parseSenses(raw) {
   const senses = [];
   for (const [index, item] of raw.senses.entries()) {
     const sense = item ?? {};
-    const definition = normalizeDefinition(toText(sense.definition));
+    const definition = normalizeDefinition(toText3(sense.definition));
     const examples = toExamples(sense.examples);
     if (!definition) return `Meaning ${index + 1}: missing definition`;
     if (sense.partOfSpeech && !parsePartOfSpeech(sense.partOfSpeech)) {
@@ -207,12 +424,12 @@ function parseWordInput(raw) {
     return { ok: false, error: "Invalid payload" };
   }
   const body = raw;
-  const word = toText(body.word);
-  const category = toText(body.category).toUpperCase();
+  const word = toText3(body.word);
+  const category = toText3(body.category).toUpperCase();
   if (!word) return { ok: false, error: "Missing word" };
   if (word.length > MAX_WORD_LENGTH) return { ok: false, error: "Word is too long" };
   if (!isCategory(category)) {
-    return { ok: false, error: `Unknown category "${toText(body.category)}"` };
+    return { ok: false, error: `Unknown category "${toText3(body.category)}"` };
   }
   const senses = parseSenses(body);
   if (typeof senses === "string") return { ok: false, error: senses };
@@ -236,10 +453,10 @@ function parseWordInput(raw) {
 }
 
 // server/services/words.ts
-import { randomUUID as randomUUID2 } from "node:crypto";
+import { randomUUID as randomUUID3 } from "node:crypto";
 
 // server/services/families.ts
-import { randomUUID } from "node:crypto";
+import { randomUUID as randomUUID2 } from "node:crypto";
 var MIN_FAMILY_SIZE = 2;
 function groupFamilies(rows) {
   const families = /* @__PURE__ */ new Map();
@@ -273,30 +490,17 @@ async function setFamily(wordId, relatedIds) {
     await pruneSmallFamilies([self.familyId]);
     return;
   }
-  const familyId = self.familyId ?? randomUUID();
+  const familyId = self.familyId ?? randomUUID2();
   const memberIds = [wordId, ...selected.map((row) => row._id)];
   await collections.words().updateMany({ familyId, _id: { $nin: memberIds } }, { $unset: { familyId: "" } });
   await collections.words().updateMany({ _id: { $in: memberIds } }, { $set: { familyId } });
   await pruneSmallFamilies(touchedFamilies.filter((id) => id !== familyId));
 }
 
-// server/services/mappers.ts
-function mapWord(row, relatedWordIds) {
-  return {
-    id: row._id,
-    word: row.word,
-    category: row.category,
-    senses: row.senses,
-    relatedWordIds,
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt?.toISOString() ?? null
-  };
-}
-
 // server/services/words.ts
 function toDoc(input, createdAt) {
   return {
-    _id: randomUUID2(),
+    _id: randomUUID3(),
     word: input.word,
     wordKey: normalizeWordKey(input.word),
     category: input.category,
@@ -367,7 +571,7 @@ async function insertWordsSkippingExisting(inputs) {
 }
 
 // server/routes/words.ts
-var wordRoutes = new Hono();
+var wordRoutes = new Hono2();
 wordRoutes.get("/", async (c) => {
   const category = c.req.query("category");
   if (!category) return c.json({ words: await listWords() });
@@ -413,7 +617,7 @@ wordRoutes.post("/bulk", async (c) => {
 
 // server/app.ts
 function createApp() {
-  const app = new Hono2();
+  const app = new Hono3();
   app.use("*", logger());
   app.use(
     "/api/*",
@@ -439,6 +643,7 @@ function createApp() {
     }
   });
   app.route("/api/words", wordRoutes);
+  app.route("/api/learners", learnerRoutes);
   return app;
 }
 

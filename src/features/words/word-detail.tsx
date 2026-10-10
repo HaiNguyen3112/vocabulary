@@ -5,6 +5,7 @@ import { wordEditPath } from "@/app/nav-items";
 import { SPEECH_LANG } from "@/constants/study";
 import { CategoryTag } from "@/features/shared/category-tag";
 import { PageHeader } from "@/features/shared/page-header";
+import { ReviewStatusTag } from "@/features/shared/review-status-tag";
 import { WordSenses } from "@/features/shared/word-senses";
 import { useWords } from "@/hooks/use-words";
 import { speakText } from "@/lib/speech";
@@ -54,6 +55,7 @@ export function WordDetail({ id, onClose, onOpenRelated }: Props) {
               onClick={() => speakText(word.word, SPEECH_LANG)}
             />
             <CategoryTag category={word.category} />
+            <ReviewStatusTag wordId={word.id} />
             <Tooltip title="Edit">
               <Button
                 type="text"

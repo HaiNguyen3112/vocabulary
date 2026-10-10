@@ -1,0 +1,475 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+$session-max-width: 720px;
+
+.session {
+  width: 100%;
+  max-width: $session-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.empty {
+  padding: $space-lg * 2 0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: $space-lg * 2 0;
+}
+
+// Header: title · progress · leave — one row; a long title truncates so ✕ never wraps.
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-sm $space-md;
+
+  > :global(.ant-btn) {
+    flex: none;
+  }
+}
+
+.title {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: 700;
+  color: $color-text;
+}
+
+.progress {
+  flex: 1 1 96px;
+  min-width: 72px;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+
+  :global(.ant-progress) {
+    flex: 1;
+    margin: 0;
+  }
+}
+
+.progressCount {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: $color-text-muted;
+}
+
+// Exercise
+.stage,
+.exercise {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.instruction {
+  margin: 0;
+  color: $color-text-muted;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.promptWord,
+.flashcardWord,
+.feedbackWord,
+.missedWord,
+.optionWord {
+  color: $color-word;
+  font-family: $font-display;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.promptWord {
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+.promptText,
+.sentence {
+  @include index-card;
+  padding: $space-md $space-md $space-md 30px;
+  color: $color-definition;
+  font-size: 17px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.sentence {
+  color: $color-text;
+  font-size: 18px;
+}
+
+.hint {
+  margin: 0;
+  color: $color-definition;
+}
+
+.hintLabel {
+  color: $color-text-muted;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.option {
+  @include index-card($ruled: false);
+  display: flex;
+  align-items: flex-start;
+  gap: $space-sm;
+  min-height: 64px;
+  padding: $space-sm $space-sm $space-sm 30px;
+  color: $color-definition;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.15s,
+    border-color 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: $color-primary;
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.optionText {
+  overflow-wrap: anywhere;
+}
+
+.optionWord {
+  font-size: 18px;
+}
+
+.optionKey {
+  flex: none;
+  min-width: 22px;
+  padding: 0 5px;
+  border: 1px solid $color-border;
+  border-bottom-width: 2px;
+  border-radius: $radius;
+  background: $color-surface;
+  color: $color-text-muted;
+  font-family: inherit;
+  font-size: 12px;
+  text-align: center;
+}
+
+.optionCorrect {
+  border-color: $color-primary;
+  background-color: $color-correct;
+  animation: flash-correct $motion-flash;
+}
+
+.optionWrong {
+  background-color: $color-wrong;
+  animation:
+    flash-wrong $motion-flash,
+    shake 0.3s;
+}
+
+.answerRow {
+  display: flex;
+  gap: $space-sm;
+}
+
+.answerInput {
+  flex: 1;
+}
+
+.replay {
+  align-self: flex-start;
+}
+
+// Flashcard
+.flashcard {
+  @include index-card;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-md;
+  padding: $space-lg $space-md $space-lg 30px;
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.flashcardBack {
+  cursor: default;
+  animation: flip-in 0.25s;
+}
+
+.flashcardWord {
+  font-size: 30px;
+}
+
+.flashcardMeaning {
+  color: $color-definition;
+  font-size: 17px;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.ratings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $space-sm;
+
+  :global(.ant-btn) {
+    gap: $space-xs;
+  }
+}
+
+// Feedback
+.feedback {
+  @include index-card($ruled: false);
+  padding: $space-md $space-md $space-md 30px;
+}
+
+.feedbackCorrect {
+  background-color: $color-correct;
+}
+
+.feedbackClose {
+  background-color: $color-card-selected;
+}
+
+.feedbackWrong {
+  background-color: $color-wrong;
+}
+
+.feedbackTitle {
+  margin: 0 0 $space-xs;
+  color: $color-text;
+  font-weight: 700;
+}
+
+.feedbackWordRow {
+  display: flex;
+  align-items: center;
+  gap: $space-xs;
+}
+
+.feedbackWord {
+  font-size: 24px;
+}
+
+.feedbackAnswer {
+  margin: 0;
+  color: $color-text;
+}
+
+.feedbackDefinition {
+  margin: $space-xs 0 0;
+  color: $color-definition;
+  overflow-wrap: anywhere;
+}
+
+.feedbackActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: $space-md;
+}
+
+// Summary
+.summary {
+  @include index-card($ruled: false);
+  padding: $space-lg $space-lg $space-lg 38px;
+}
+
+.summaryTitle {
+  margin: 0;
+  font-family: $font-display;
+  font-size: 24px;
+  color: $color-text;
+}
+
+.accuracy {
+  margin: $space-sm 0 0;
+  color: $color-text-muted;
+}
+
+.accuracyValue {
+  color: $color-primary;
+  font-family: $font-display;
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-xs $space-md;
+  margin: $space-sm 0 0;
+  padding: 0;
+  list-style: none;
+  color: $color-text-muted;
+
+  strong {
+    color: $color-text;
+  }
+}
+
+.missedTitle {
+  margin: $space-lg 0 $space-sm;
+  font-size: 16px;
+  color: $color-text;
+}
+
+.missed {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.missedItem {
+  padding: $space-sm 0;
+  border-top: 1px solid $color-border;
+}
+
+.missedWord {
+  font-size: 18px;
+}
+
+.summaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  margin-top: $space-lg;
+}
+
+// Keyboard hint (desktop only)
+.keyHint {
+  margin: 0;
+  color: $color-text-muted;
+  font-size: 12px;
+  text-align: center;
+
+  kbd {
+    display: inline-block;
+    min-width: 20px;
+    margin-right: 2px;
+    padding: 0 5px;
+    border: 1px solid $color-border;
+    border-bottom-width: 2px;
+    border-radius: $radius;
+    background: $color-surface;
+    font-family: inherit;
+    text-align: center;
+  }
+
+  @media (max-width: $bp-lg - 1px), (pointer: coarse) {
+    display: none;
+  }
+}
+
+@keyframes flash-correct {
+  50% {
+    box-shadow: 0 0 0 3px $color-primary;
+  }
+}
+
+@keyframes flash-wrong {
+  50% {
+    box-shadow: 0 0 0 3px $color-card-margin;
+  }
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+@keyframes flip-in {
+  from {
+    transform: rotateX(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .flashcard {
+    transition: none;
+  }
+
+  .option:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .optionWrong {
+    animation: flash-wrong $motion-flash;
+  }
+
+  .flashcardBack {
+    animation: none;
+  }
+}
+
+@media (max-width: $bp-mobile - 1px) {
+  .options {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ratings {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .promptWord {
+    font-size: 26px;
+  }
+
+  .flashcard {
+    min-height: 160px;
+  }
+
+  .flashcardWord {
+    font-size: 26px;
+  }
+
+  .summary {
+    padding: $space-md $space-md $space-md 30px;
+  }
+
+  .summaryActions :global(.ant-btn) {
+    flex: 1;
+  }
+}

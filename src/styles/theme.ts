@@ -66,6 +66,8 @@ function buildTheme(scheme: ColorScheme): ThemeConfig {
     token: {
       colorPrimary: palette.primary,
       colorLink: palette.primary,
+      // Progress bars (and info alerts / messages) use colorInfo — keep them ink blue, not antd blue.
+      colorInfo: palette.primary,
       colorBgLayout: palette.bg,
       colorBgContainer: palette.surface,
       colorBgElevated: palette.surface,
