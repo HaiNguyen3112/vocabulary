@@ -9,7 +9,7 @@ import { ALL_CATEGORIES, type CategoryFilter } from "@/constants/categories";
 import { WORDS_PAGE_SIZE } from "@/constants/words";
 import { CategoryFilterSelect } from "@/features/shared/category-select";
 import { ExcelFileButton } from "@/features/shared/excel-file-button";
-import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useIsMobile } from "@/hooks/use-media-query";
 import { useWords } from "@/hooks/use-words";
 import type { ParsedWordRows } from "@/lib/excel-rows";
 import { filterWords } from "@/lib/filter-words";

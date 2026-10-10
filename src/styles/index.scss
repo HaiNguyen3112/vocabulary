@@ -1,10 +1,58 @@
 @use "./tokens" as *;
 
+// Values mirror `palettes` in theme.ts.
+:root {
+  --color-bg: #e9edf3;
+  --color-surface: #ffffff;
+  --color-chrome: #ffffff;
+  --color-border: #d2dae6;
+  --color-text: #24324d;
+  --color-text-muted: #6a778f;
+  --color-primary: #1d3a8a;
+  --color-word: #1d3a8a;
+  --color-definition: #34405a;
+  --color-card-selected: #eef2fd;
+  --color-card-rule: #e3e9f4;
+  --color-card-margin: #f2b8c2;
+  --color-correct: #cfe9d9;
+  --color-wrong: #f8d4d8;
+  --shadow-card: 0 1px 0 #c7d0de, 0 2px 6px rgba(29, 58, 138, 0.06);
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #121722;
+  --color-surface: #1b2232;
+  --color-chrome: #161c29;
+  --color-border: #2c3549;
+  --color-text: #dbe3f4;
+  --color-text-muted: #8d99b3;
+  --color-primary: #8fa8ff;
+  --color-word: #b9c9ff;
+  --color-definition: #c3cbe0;
+  --color-card-selected: #232d47;
+  --color-card-rule: #232c40;
+  --color-card-margin: #6b3a48;
+  --color-correct: #1f4a35;
+  --color-wrong: #4f2630;
+  --shadow-card: 0 1px 0 #0b0f17, 0 2px 8px rgba(0, 0, 0, 0.35);
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
   background: $color-bg;
+  color: $color-text;
+  font-family: $font-body;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+.ant-typography:is(h1, h2, h3, h4) {
+  font-family: $font-display;
+  text-wrap: balance;
 }
 
 /* Multiline definitions are stored with real line breaks. */
