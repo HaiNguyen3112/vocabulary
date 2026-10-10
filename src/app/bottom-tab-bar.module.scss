@@ -6,8 +6,8 @@
   z-index: 100;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  height: calc(#{$tabbar-height} + env(safe-area-inset-bottom, 0px));
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(#{$tabbar-height} + #{$tabbar-safe-bottom});
+  padding-bottom: $tabbar-safe-bottom;
   border-top: 1px solid $color-border;
   background: $color-chrome;
 }
@@ -17,9 +17,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   color: $color-text-muted;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
 
   &[aria-current="page"] {
@@ -33,7 +33,7 @@
 }
 
 .icon {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
 }
 
