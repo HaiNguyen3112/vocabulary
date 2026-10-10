@@ -1,6 +1,6 @@
-import { randomUUID } from "node:crypto";
 import type { Rating, WordReview } from "../../shared/review";
 import { collections } from "../db/mongo";
+import type { ReviewDoc } from "../db/types";
 import { mapReview } from "./mappers";
 import { scheduleReview } from "./scheduler";
 
@@ -15,25 +15,26 @@ export async function recordReview(
   rating: Rating,
   now: Date = new Date(),
 ): Promise<WordReview> {
-  const existing = await collections.reviews().findOne({ learnerId, wordId });
+  const _id = `${learnerId}:${wordId}`;
+  const existing = await collections.reviews().findOne({ _id });
   const card = scheduleReview(existing?.card ?? null, rating, now);
-  const firstReviewedAt = existing?.firstReviewedAt ?? now;
-
-  await collections.reviews().updateOne(
-    { learnerId, wordId },
-    {
-      $set: { card, dueAt: card.due, updatedAt: now },
-      $setOnInsert: { _id: randomUUID(), learnerId, wordId, firstReviewedAt },
-    },
-    { upsert: true },
-  );
-  return mapReview({
-    _id: existing?._id ?? "",
+  const doc: ReviewDoc = {
+    _id,
     learnerId,
     wordId,
     card,
     dueAt: card.due,
-    firstReviewedAt,
+    firstReviewedAt: existing?.firstReviewedAt ?? now,
     updatedAt: now,
-  });
+  };
+
+  await collections.reviews().updateOne(
+    { _id },
+    {
+      $set: { card: doc.card, dueAt: doc.dueAt, updatedAt: doc.updatedAt },
+      $setOnInsert: { learnerId, wordId, firstReviewedAt: doc.firstReviewedAt },
+    },
+    { upsert: true },
+  );
+  return mapReview(doc);
 }

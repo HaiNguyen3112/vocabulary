@@ -37,7 +37,7 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 
 `learners`: `{ _id (UUID), userId (lowercased), userIdKey (normalizeUserIdKey), name, createdAt }`. Index `{ userIdKey: 1 }` **unique** (duplicate insert -> Mongo code 11000 -> 409).
 
-`reviews` (one per learner + word, FSRS state): `{ _id, learnerId, wordId, card: StoredCard, dueAt, firstReviewedAt, updatedAt }`. Index `{ learnerId: 1, dueAt: 1 }`. Written by an upsert in `server/services/reviews.ts` (`firstReviewedAt` set only on insert); scheduling lives in `server/services/scheduler.ts`.
+`reviews` (one per learner + word, FSRS state): `{ _id (`${learnerId}:${wordId}`), learnerId, wordId, card: StoredCard, dueAt, firstReviewedAt, updatedAt }`. Index `{ learnerId: 1, dueAt: 1 }`. Written by an upsert in `server/services/reviews.ts` (`firstReviewedAt` set only on insert); scheduling lives in `server/services/scheduler.ts`.
 
 **Deleting a word must also delete its `reviews`** (`{ wordId }`). There is no delete endpoint yet, so nothing does this today.
 
