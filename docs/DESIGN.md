@@ -50,3 +50,5 @@ Change a colour in that order. Components only use `$color-*` / antd tokens, so 
 5. Multiline definitions via `.pre-line` — never HTML injection.
 6. Icons from `@ant-design/icons`; no emoji.
 7. No external image URLs. Fonts are the only external asset (Google Fonts).
+8. Desktop word bank is a split view (list 380px + detail panel); each side scrolls on its own.
+9. Every interactive card shows a 2px primary focus outline; motion (lift, shake) is dropped under `prefers-reduced-motion`.
