@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { parseLearnerInput } from "../../shared/learner";
 import { parseReviewInput } from "../../shared/review";
 import { collections } from "../db/mongo";
+import { isValidTimeZone, loadActivity } from "../services/activity";
 import { createLearner, findLearnerByUserId, learnerExists } from "../services/learners";
 import { listReviews, recordReview } from "../services/reviews";
 
@@ -26,6 +27,14 @@ learnerRoutes.get("/:learnerId/reviews", async (c) => {
   const learnerId = c.req.param("learnerId");
   if (!(await learnerExists(learnerId))) return c.json({ error: "Learner not found" }, 404);
   return c.json({ reviews: await listReviews(learnerId) });
+});
+
+learnerRoutes.get("/:learnerId/activity", async (c) => {
+  const learnerId = c.req.param("learnerId");
+  const timeZone = c.req.query("tz") ?? "";
+  if (!isValidTimeZone(timeZone)) return c.json({ error: "Invalid time zone" }, 400);
+  if (!(await learnerExists(learnerId))) return c.json({ error: "Learner not found" }, 404);
+  return c.json({ activity: await loadActivity(learnerId, timeZone) });
 });
 
 learnerRoutes.post("/:learnerId/reviews", async (c) => {

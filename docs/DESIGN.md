@@ -23,6 +23,9 @@ colors:            # light / dark
   card-margin:   "#f2b8c2" / "#6b3a48"   # red margin line, 13px from the left
   correct:       "#cfe9d9" / "#1f4a35"   # flash on a match
   wrong:         "#f8d4d8" / "#4f2630"   # flash on a miss
+  heat-1…4:      "#c6d3f0" "#8ea7e0" "#4f72c4" "#1d3a8a" / "#27365e" "#36529b" "#5f82dc" "#a6bbff"
+                 # Progress heatmap: one-hue sequential ramp from primary, light → dark (flipped in dark mode);
+                 # an empty day uses card-rule
 shell: sticky top bar (brand · nav ≥992px · theme toggle) + bottom tab bar <992px (Study · Words · Add)
 maxWidth: { content: 1080px, board: 1000px }
 ```

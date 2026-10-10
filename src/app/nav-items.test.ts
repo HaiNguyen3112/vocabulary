@@ -9,6 +9,13 @@ describe("findNavKey", () => {
   });
 });
 
+describe("TAB_ITEMS", () => {
+  it("puts Progress between Words and Add", () => {
+    expect(TAB_ITEMS.map((item) => item.label)).toEqual(["Study", "Words", "Progress", "Add"]);
+    expect(findNavKey("/progress", TAB_ITEMS)).toBe(ROUTES.progress);
+  });
+});
+
 describe("studyModePath", () => {
   it("builds the free-practice path", () => {
     expect(studyModePath("cloze")).toBe("/study/cloze");

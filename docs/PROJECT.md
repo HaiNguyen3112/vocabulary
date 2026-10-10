@@ -17,15 +17,15 @@ shared/                # contracts used by BOTH client and server (no React, no 
   word.ts              # Word / WordInput / WordSense, parseWordInput (validation), formatDefinition
   legacy-definition.ts # split old free-text definitions into senses
   learner.ts           # Learner, normalizeUserIdKey, parseLearnerInput
-  review.ts            # Rating, ReviewState, WordReview, parseReviewInput
+  review.ts            # Rating, ReviewState, WordReview, parseReviewInput, isMastered, Activity (progress history)
 src/
   main.tsx, App.tsx    # providers: antd ConfigProvider + App, BrowserRouter
   app/                 # AppLayout (top bar + bottom tab bar), ThemeToggle, LearnerMenu, nav-items (ROUTES, studyModePath,
                        # NAV_ITEMS, TAB_ITEMS), app-routes
-  pages/               # thin routes: study-page (hub), study-review-page, study-mode-page, words-page (list + :id),
+  pages/               # thin routes: study-page (hub), study-review-page, study-mode-page, progress-page, words-page (list + :id),
                        # word-edit-page
   features/
-    study/             # LearnerGate (sign in / register modal) wraps every Study route
+    study/             # every Study route is wrapped in LearnerGate (features/shared)
                        # StudyHub → TodayCard + ModeGrid (category filter + Excel deck in router state, practice-source)
                        # ReviewSession / PracticeSession → ExerciseSession (useExerciseSession, use-exercise-keys,
                        #   Choice/Flashcard/Type/Listen/Cloze exercises, AnswerFeedback, SessionSummary)
@@ -33,7 +33,9 @@ src/
     words/             # WordsWorkspace (split view ≥992px / table ≥600px / WordCardList <600px, filters in URL via
                        # useWordListParams), WordsSplitView + WordIndexList (≥992px), WordDetailDrawer (<992px), WordDetail,
                        # WordEditForm (page, + SensesField, RelatedWordsField), ImportPreviewModal
-    shared/            # CategoryFilterSelect, CategoryTag, PartOfSpeechTag, WordSenses, ExcelFileButton, readWordsFromExcel
+    progress/          # ProgressDashboard → ProgressOverview (word buckets, retention, streak), StrugglingWords
+                       # (→ practice-only deck), ActivitySection → ActivityHeatmap + MasteredChart (inline SVG)
+    shared/            # LearnerGate (sign in / register modal), CategoryFilterSelect, CategoryTag, PartOfSpeechTag, WordSenses, ExcelFileButton, readWordsFromExcel
   hooks/               # use-words (store + first load), use-learner, use-reviews (current learner's reviews),
                        # use-media-query (mobile/desktop/small), use-color-scheme, use-go-back
   store/               # words-store (Zustand cache over /api/words), learner-store (localStorage), reviews-store
@@ -41,7 +43,8 @@ src/
   api/                 # apiFetch + words, learners, reviews endpoints
   lib/                 # pure: shuffle, speech, filter-words, match-board, excel-rows, related-words, color-scheme,
                        # board-navigation, word-labels, exercise (StudyWord, ExerciseKind), build-exercise (findCloze),
-                       # grade-answer, review-queue (queue, exercise kind, today stats), learner-storage (+ *.test.ts)
+                       # grade-answer, review-queue (queue, exercise kind, today stats), learner-storage, progress (buckets, struggling words, heatmap grid),
+                       # practice-state (hub router state + practice-only decks) (+ *.test.ts)
   constants/           # category labels/colours, study timings + session sizes, study-modes (STUDY_MODES,
                        # PracticeMode), page sizes, breakpoints
   styles/              # theme.ts (palettes + antd themes), _tokens.scss, _mixins.scss (index-card), index.scss (CSS variables)
@@ -65,7 +68,7 @@ All path segments and code identifiers: **English**. Component files ≤ **200 l
 | Kind | Where | Notes |
 |------|-------|-------|
 | UI local | `useState` | modal open, filter, selected card |
-| Hub practice source | router state `{ category, fileDeck }` | hub filter + uploaded Excel deck; handed to `/study/*` and back, survives reload |
+| Hub practice source | router state `{ category, fileDeck, deckLabel }` (`lib/practice-state`) | hub filter + a practice-only deck (uploaded Excel, or "Từ hay quên" from Progress); handed to `/study/*` and back, survives reload |
 | Words | MongoDB via Hono; Zustand cache | `GET /api/words` once, patched after add/import; quiet refetch after edits (family changes touch other words) |
 | Learner | `learner-store` + `localStorage["study-vocabulary:learner"]` | `{ id, userId, name }`; Switch learner clears it |
 | Reviews | MongoDB via Hono; `reviews-store` | `GET /api/learners/:id/reviews` once per learner, patched by each `POST` review |
@@ -75,9 +78,10 @@ All path segments and code identifiers: **English**. Component files ≤ **200 l
 
 ## Key behaviours
 
-- **Learner gate:** every Study route (`/`, `/study/*`) needs a learner — a modal to sign in (user ID) or register (name + user ID). Words pages do not.
+- **Learner gate:** every Study route (`/`, `/study/*`) and `/progress` needs a learner — a modal to sign in (user ID) or register (name + user ID). Words pages do not.
 - **Study hub (`/`):** Today card (due, new left today = `NEW_WORDS_PER_DAY` − new words first reviewed today, learned) with **Start review** (disabled, "All done for today", when nothing is due and no new words are left), then the free-practice mode grid with the category filter and "Upload file".
 - **Review session (`/study/review`):** queue built once on mount = due words (oldest first) + new words up to today's allowance, capped at `SESSION_SIZE`; new/learning words get multiple choice, mature words rotate type → listen → cloze. A wrong answer comes back at the end (only the first answer is recorded). Summary: accuracy, missed words, Review again / Back to hub.
+- **Progress (`/progress`):** word buckets — not studied / learning (new, learning, relearning) / known (review, stability < 21 d) / mastered (review, stability ≥ 21 d) — computed from the reviews cache; "keeps forgetting" = lapses ≥ 2 or difficulty ≥ 8 (top 20, most lapses first) with "Luyện những từ này" → hub with those words as a practice-only deck (ids dropped, nothing recorded). History (26-week heatmap, 30-day retention, streak, mastered words per day) from `GET /api/learners/:id/activity?tz=` — starts at the first logged answer.
 - **Free practice (`/study/:mode`):** `match`, `flashcards`, `choice`, `type`, `listen`, `cloze` (unknown → `/`). `PRACTICE_SESSION_SIZE` random distinct words of one kind from the hub's source + category; cloze only uses words with a usable example. Bank words record their first answer; file-deck words (`id: null`) never post reviews. Match keeps its board (New board + category filter) and records nothing.
 - Board = 8 random pairs with **distinct** words (legacy data has the same word with different meanings).
 - Hub "Upload file" studies a local Excel deck **without saving** (free-practice modes only); the tag closes it.
@@ -85,9 +89,9 @@ All path segments and code identifiers: **English**. Component files ≤ **200 l
 - Single add / edit rejects a spelling another word already uses (client validator + server `409`).
 - A word has one or more **senses** (word type + definition + example sentences). The study board shows `formatDefinition(senses)` and never the examples (they contain the word).
 - **Related words** = word family, two-way and transitive. Table: click a related tag to peek at its meaning. Detail page: related words listed with their word types + meanings; click to open that word's page.
-- **Routes:** `/` (study hub), `/study/review`, `/study/:mode`, `/vocabulary-management` (list, `?q=&category=&page=`), `/vocabulary-management/:id` (list + that word, read-only), `/vocabulary-management/:id/edit` and `/vocabulary-management/new` (form). Clicking a row/card opens the detail; the pencil (icon-only, also in the detail header) opens edit. Saving an edit returns to the previous page; saving a new word replaces the form with the list + its detail.
+- **Routes:** `/` (study hub), `/study/review`, `/study/:mode`, `/progress`, `/vocabulary-management` (list, `?q=&category=&page=`), `/vocabulary-management/:id` (list + that word, read-only), `/vocabulary-management/:id/edit` and `/vocabulary-management/new` (form). Clicking a row/card opens the detail; the pencil (icon-only, also in the detail header) opens edit. Saving an edit returns to the previous page; saving a new word replaces the form with the list + its detail.
 - Mobile (<600px): word cards instead of the table.
-- **Shell:** top bar (brand, Study / Words ≥992px, theme toggle); below 992px a fixed bottom tab bar (Study · Words · Add).
+- **Shell:** top bar (brand, Study / Words / Progress ≥992px, theme toggle); below 992px a fixed bottom tab bar (Study · Words · Progress · Add).
 - **Dark mode:** toggle cycles System → Light → Dark, stored in `localStorage["study-vocabulary:color-scheme"]`; `data-theme` on `<html>` switches the CSS variables (set before first paint by `index.html`).
 - **Board:** progress `matched / 8 pairs · misses`; keyboard: arrows move focus (skip matched cards), Enter picks, Esc clears, R deals a new board (ignored while typing or with Ctrl/Cmd).
 - **Word detail never leaves the list:** `/vocabulary-management/:id` keeps the list mounted (same scroll, filters in `?q=&category=&page=`).

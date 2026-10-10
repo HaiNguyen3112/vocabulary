@@ -26,6 +26,8 @@ export function mapReview(doc: ReviewDoc): WordReview {
     dueAt: doc.dueAt.toISOString(),
     reps: doc.card.reps,
     lapses: doc.card.lapses,
+    stability: doc.card.stability,
+    difficulty: doc.card.difficulty,
     firstReviewedAt: doc.firstReviewedAt.toISOString(),
   };
 }

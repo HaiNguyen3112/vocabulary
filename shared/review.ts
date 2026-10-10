@@ -11,7 +11,35 @@ export type WordReview = {
   dueAt: string;
   reps: number;
   lapses: number;
+  /** Days until recall probability drops to 90%. */
+  stability: number;
+  /** 1 (easy) – 10 (hard), for this learner. */
+  difficulty: number;
   firstReviewedAt: string;
+};
+
+/** A word in `review` state with at least this stability counts as mastered. */
+export const MATURE_STABILITY_DAYS = 21;
+
+export function isMastered(state: ReviewState, stability: number): boolean {
+  return state === "review" && stability >= MATURE_STABILITY_DAYS;
+}
+
+/** One local calendar day of review history. `mastered` is null before history starts. */
+export type ActivityDay = {
+  date: string;
+  reviews: number;
+  mastered: number | null;
+};
+
+export type Activity = {
+  /** First logged answer (ISO); null when there is no history yet. */
+  since: string | null;
+  /** Oldest first, today last. */
+  days: ActivityDay[];
+  /** Answers on words already in `review` state over the last 30 days; passed = not rated "again". */
+  retention: { passed: number; total: number };
+  streak: { current: number; longest: number };
 };
 
 export type ReviewInput = {

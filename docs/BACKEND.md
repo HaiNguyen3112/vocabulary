@@ -33,13 +33,15 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 
 **Word family:** the API exposes `relatedWordIds` (family minus self), computed in `server/services/families.ts`. Saving a word with `relatedWordIds` makes its family exactly that set: unselected members leave, selected words join (leaving their old family), families left with one member are dissolved. So links are two-way and transitive.
 
-## Collections `learners` and `reviews`
+## Collections `learners`, `reviews` and `review_logs`
 
 `learners`: `{ _id (UUID), userId (lowercased), userIdKey (normalizeUserIdKey), name, createdAt }`. Index `{ userIdKey: 1 }` **unique** (duplicate insert -> Mongo code 11000 -> 409).
 
 `reviews` (one per learner + word, FSRS state): `{ _id (`${learnerId}:${wordId}`), learnerId, wordId, card: StoredCard, dueAt, firstReviewedAt, updatedAt }`. Index `{ learnerId: 1, dueAt: 1 }`. Written by an upsert in `server/services/reviews.ts` (`firstReviewedAt` set only on insert); scheduling lives in `server/services/scheduler.ts`.
 
-**Deleting a word must also delete its `reviews`** (`{ wordId }`). There is no delete endpoint yet, so nothing does this today.
+`review_logs` (append-only history, one per recorded answer): `{ learnerId, wordId, rating, stateBefore, stabilityBefore, stateAfter, stabilityAfter, reviewedAt }`. Index `{ learnerId: 1, reviewedAt: 1 }`. Inserted right after the review upsert; a failed insert is logged and does not fail the answer. Logging started with the Progress page — older answers have no history. `server/services/activity.ts` aggregates it per local day (`buildActivity`, pure + tested).
+
+**Deleting a word must also delete its `reviews` and `review_logs`** (`{ wordId }`). There is no delete endpoint yet, so nothing does this today.
 
 ## Endpoints
 
@@ -55,6 +57,7 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 | POST | `/api/learners` | `{ userId, name }` | `201 { learner }` · `400` · `409` User ID already exists |
 | GET | `/api/learners/by-user-id/:userId` | — | `{ learner }` (case-insensitive) · `404` |
 | GET | `/api/learners/:learnerId/reviews` | — | `{ reviews: WordReview[] }` · `404` Learner not found |
+| GET | `/api/learners/:learnerId/activity?tz=<IANA>` | — | `{ activity: Activity }` (last 182 local days, 30-day retention, streak, mastered per day) · `400` Invalid time zone · `404` |
 | POST | `/api/learners/:learnerId/reviews` | `{ wordId, rating }` | `{ review }` · `400` · `404` Learner/Word not found |
 
 `WordInput = { word, category, senses, relatedWordIds }`. All input goes through `parseWordInput` (`shared/word.ts`), which also accepts the flat shape `{ word, category, definition, partOfSpeech?, examples? }` (Excel rows) and splits legacy text like `"- nắm lấy (Verb)\n- vali (Noun)"` / `"…\nex: …"` into senses (`shared/legacy-definition.ts`).

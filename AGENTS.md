@@ -1,6 +1,6 @@
 # AGENTS.md — Study Vocabulary
 
-Web app học từ vựng tiếng Anh cá nhân: trang Study (hub) có **ôn tập lặp lại ngắt quãng** (FSRS, tiến độ theo từng learner — đăng ký bằng tên + user ID, không mật khẩu) và luyện tự do (ghép cặp **từ ↔ nghĩa**, flashcards, trắc nghiệm, gõ từ, nghe & viết, điền vào chỗ trống — có phát âm), cùng quản lý kho từ (thêm, tìm, lọc, import Excel). Chủ app trao đổi bằng **tiếng Việt** → trả lời tiếng Việt, ngắn, ưu tiên kết quả chạy thật trên web/mobile.
+Web app học từ vựng tiếng Anh cá nhân: trang Study (hub) có **ôn tập lặp lại ngắt quãng** (FSRS, tiến độ theo từng learner — đăng ký bằng tên + user ID, không mật khẩu) và luyện tự do (ghép cặp **từ ↔ nghĩa**, flashcards, trắc nghiệm, gõ từ, nghe & viết, điền vào chỗ trống — có phát âm), trang **Progress** (thống kê tiến độ: từ hay quên, từ nhớ chắc, heatmap hoạt động), cùng quản lý kho từ (thêm, tìm, lọc, import Excel). Chủ app trao đổi bằng **tiếng Việt** → trả lời tiếng Việt, ngắn, ưu tiên kết quả chạy thật trên web/mobile.
 
 Khung cấu trúc lấy từ `bistro-hub` (layers, rules, docs, Hono + MongoDB) — UI giữ **Ant Design**.
 

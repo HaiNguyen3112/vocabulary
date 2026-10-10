@@ -6,9 +6,10 @@ import type { PracticeMode } from "@/constants/study-modes";
 import { CategoryFilterSelect } from "@/features/shared/category-select";
 import { ExcelFileButton } from "@/features/shared/excel-file-button";
 import type { ParsedWordRows } from "@/lib/excel-rows";
-import { LearnerGate } from "./learner-gate";
+import { LearnerGate } from "@/features/shared/learner-gate";
 import { ModeGrid } from "./mode-grid";
-import { usePracticeState, type PracticeState } from "./practice-source";
+import type { PracticeState } from "@/lib/practice-state";
+import { usePracticeState } from "./practice-source";
 import { TodayCard } from "./today-card";
 import styles from "./study-hub.module.scss";
 
@@ -20,7 +21,7 @@ function HubContent() {
   const { message } = App.useApp();
   const navigate = useNavigate();
   const practice = usePracticeState();
-  const { category, fileDeck } = practice;
+  const { category, fileDeck, deckLabel } = practice;
 
   const updatePractice = (patch: Partial<PracticeState>) => {
     navigate(ROUTES.study, { replace: true, state: { ...practice, ...patch } satisfies PracticeState });
@@ -32,7 +33,7 @@ function HubContent() {
       return;
     }
     if (invalid.length > 0) message.warning(`Skipped ${invalid.length} invalid rows`);
-    updatePractice({ fileDeck: valid });
+    updatePractice({ fileDeck: valid, deckLabel: null });
   };
 
   const handleSelectMode = (mode: PracticeMode) => navigate(studyModePath(mode), { state: practice });
@@ -50,8 +51,8 @@ function HubContent() {
             <ExcelFileButton onParsed={handleParsed} />
             <CategoryFilterSelect value={category} onChange={(value) => updatePractice({ category: value })} />
             {fileDeck && (
-              <Tag closable closeIcon={<CloseOutlined />} onClose={() => updatePractice({ fileDeck: null })}>
-                Studying file · {fileDeck.length} words
+              <Tag closable closeIcon={<CloseOutlined />} onClose={() => updatePractice({ fileDeck: null, deckLabel: null })}>
+                {deckLabel ?? "Studying file"} · {fileDeck.length} words
               </Tag>
             )}
           </div>

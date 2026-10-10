@@ -1,4 +1,5 @@
 import type { Category } from "../../shared/categories";
+import type { Rating, ReviewState } from "../../shared/review";
 import type { WordSense } from "../../shared/word";
 import type { StoredCard } from "../services/scheduler";
 
@@ -36,4 +37,16 @@ export type ReviewDoc = {
   dueAt: Date;
   firstReviewedAt: Date;
   updatedAt: Date;
+};
+
+/** Append-only history: one per recorded answer. */
+export type ReviewLogDoc = {
+  learnerId: string;
+  wordId: string;
+  rating: Rating;
+  stateBefore: ReviewState;
+  stabilityBefore: number;
+  stateAfter: ReviewState;
+  stabilityAfter: number;
+  reviewedAt: Date;
 };

@@ -1,6 +1,6 @@
 import type { Rating, WordReview } from "../../shared/review";
 import { collections } from "../db/mongo";
-import type { ReviewDoc } from "../db/types";
+import type { ReviewDoc, ReviewLogDoc } from "../db/types";
 import { mapReview } from "./mappers";
 import { scheduleReview } from "./scheduler";
 
@@ -36,5 +36,24 @@ export async function recordReview(
     },
     { upsert: true },
   );
+  await logReview({
+    learnerId,
+    wordId,
+    rating,
+    stateBefore: existing?.card.state ?? "new",
+    stabilityBefore: existing?.card.stability ?? 0,
+    stateAfter: card.state,
+    stabilityAfter: card.stability,
+    reviewedAt: now,
+  });
   return mapReview(doc);
+}
+
+/** History is best-effort: the card is the source of truth, so a failed log never fails the answer. */
+async function logReview(log: ReviewLogDoc): Promise<void> {
+  try {
+    await collections.reviewLogs().insertOne(log);
+  } catch (error) {
+    console.error("[vocabulary] Could not log review:", error);
+  }
 }

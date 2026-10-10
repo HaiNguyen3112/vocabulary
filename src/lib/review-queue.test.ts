@@ -22,6 +22,8 @@ function r(over: Partial<WordReview> = {}): WordReview {
     dueAt: now.toISOString(),
     reps: 1,
     lapses: 0,
+    stability: 5,
+    difficulty: 5,
     firstReviewedAt: now.toISOString(),
     ...over,
   };

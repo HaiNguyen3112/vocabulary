@@ -1,4 +1,4 @@
-import { PlusCircleOutlined, ReadOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { LineChartOutlined, PlusCircleOutlined, ReadOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 import type { PracticeMode } from "@/constants/study-modes";
 
@@ -10,6 +10,7 @@ export const ROUTES = {
   wordNew: "/vocabulary-management/new",
   wordDetail: "/vocabulary-management/:id",
   wordEdit: "/vocabulary-management/:id/edit",
+  progress: "/progress",
 } as const;
 
 export const studyModePath = (mode: PracticeMode) => `/study/${mode}`;
@@ -26,6 +27,7 @@ export type NavItem = {
 export const NAV_ITEMS: NavItem[] = [
   { path: ROUTES.study, label: "Study", icon: <ReadOutlined /> },
   { path: ROUTES.words, label: "Words", icon: <UnorderedListOutlined /> },
+  { path: ROUTES.progress, label: "Progress", icon: <LineChartOutlined /> },
 ];
 
 /** Mobile bottom tabs — adds a shortcut to the new-word form. */

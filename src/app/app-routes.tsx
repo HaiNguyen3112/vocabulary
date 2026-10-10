@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { ROUTES } from "@/app/nav-items";
+import { ProgressPage } from "@/pages/progress-page";
 import { StudyModePage } from "@/pages/study-mode-page";
 import { StudyPage } from "@/pages/study-page";
 import { StudyReviewPage } from "@/pages/study-review-page";
@@ -16,6 +17,7 @@ export function AppRoutes() {
       <Route path={ROUTES.wordNew} element={<WordEditPage />} />
       <Route path={ROUTES.wordDetail} element={<WordsPage />} />
       <Route path={ROUTES.wordEdit} element={<WordEditPage />} />
+      <Route path={ROUTES.progress} element={<ProgressPage />} />
       <Route path="/vocabulary" element={<Navigate to={ROUTES.study} replace />} />
       <Route path="*" element={<Navigate to={ROUTES.study} replace />} />
     </Routes>

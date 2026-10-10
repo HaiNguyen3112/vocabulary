@@ -16,6 +16,11 @@ $color-card-rule: var(--color-card-rule);
 $color-card-margin: var(--color-card-margin);
 $color-correct: var(--color-correct);
 $color-wrong: var(--color-wrong);
+// Progress heatmap ramp (1 = fewest reviews)
+$color-heat-1: var(--color-heat-1);
+$color-heat-2: var(--color-heat-2);
+$color-heat-3: var(--color-heat-3);
+$color-heat-4: var(--color-heat-4);
 $shadow-card: var(--shadow-card);
 
 $font-body: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

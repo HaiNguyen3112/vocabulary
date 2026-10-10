@@ -12,6 +12,8 @@ function review(dueInMs: number, state: WordReview["state"] = "review"): WordRev
     dueAt: new Date(NOW.getTime() + dueInMs).toISOString(),
     reps: 1,
     lapses: 0,
+    stability: 5,
+    difficulty: 5,
     firstReviewedAt: NOW.toISOString(),
   };
 }

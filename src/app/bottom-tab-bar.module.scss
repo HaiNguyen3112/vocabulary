@@ -5,7 +5,8 @@
   inset: auto 0 0;
   z-index: 100;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-columns: minmax(0, 1fr);
+  grid-auto-flow: column;
   height: calc(#{$tabbar-height} + #{$tabbar-safe-bottom});
   padding-bottom: $tabbar-safe-bottom;
   border-top: 1px solid $color-border;

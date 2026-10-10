@@ -1,0 +1,424 @@
+@use "../../styles/tokens" as *;
+@use "../../styles/mixins" as *;
+
+$heat-cell-max: 14px;
+$heat-gap: 2px;
+
+.page {
+  width: 100%;
+  max-width: $board-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: $space-lg 0;
+}
+
+.card {
+  @include index-card($ruled: false);
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-lg $space-lg $space-lg 38px;
+}
+
+.sectionHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm $space-md;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: 700;
+  color: $color-text;
+}
+
+.note {
+  margin: 0;
+  color: $color-text-muted;
+  font-size: 13px;
+}
+
+// Overview — ordinal buckets on one hue (lightest = least progress), never identity by colour alone
+.bucketUnstudied {
+  background: $color-card-rule;
+}
+
+.bucketLearning {
+  background: $color-heat-1;
+}
+
+.bucketKnown {
+  background: $color-heat-2;
+}
+
+.bucketMastered {
+  background: $color-heat-4;
+}
+
+.bucketBar {
+  display: flex;
+  gap: 2px;
+  height: 12px;
+
+  > span {
+    min-width: 4px;
+    border-radius: 2px;
+  }
+}
+
+.buckets,
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: $space-md;
+  margin: 0;
+}
+
+.highlights {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: $space-md;
+  border-top: 1px solid $color-border;
+}
+
+.bucket,
+.highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  dd {
+    margin: 0;
+  }
+}
+
+.bucketLabel,
+.statLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: $color-text-muted;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.swatch {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.bucketValue,
+.statValue {
+  color: $color-text;
+  font-family: $font-display;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.statValue {
+  color: $color-primary;
+  font-size: 36px;
+}
+
+.bucketHint,
+.statHint {
+  color: $color-text-muted;
+  font-size: 12px;
+}
+
+// Keeps forgetting
+.wordList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid $color-card-rule;
+}
+
+.wordRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+  align-items: baseline;
+  gap: $space-md;
+  padding: $space-sm 0;
+  border-bottom: 1px solid $color-card-rule;
+  color: $color-text;
+
+  &:hover .wordText {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 2px;
+  }
+}
+
+.wordText {
+  overflow: hidden;
+  color: $color-word;
+  font-family: $font-display;
+  font-size: 17px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wordMeaning {
+  overflow: hidden;
+  color: $color-definition;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wordBadge {
+  color: $color-text-muted;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// Activity
+.chartPlaceholder {
+  height: 180px;
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin: 0;
+}
+
+.figureTitle {
+  color: $color-text;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.heatmapScroll {
+  max-width: 100%;
+}
+
+.heatmap {
+  display: grid;
+  grid-template-columns: 22px repeat(var(--weeks), minmax(0, $heat-cell-max));
+  gap: $heat-gap;
+  max-width: calc(22px + var(--weeks) * (#{$heat-cell-max} + #{$heat-gap}));
+}
+
+.heatRow {
+  display: contents;
+}
+
+.heatMonth,
+.heatWeekday {
+  overflow: visible;
+  color: $color-text-muted;
+  font-size: 10px;
+  line-height: 12px;
+  white-space: nowrap;
+}
+
+.heatCell {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: 2px;
+
+  &[data-active] {
+    outline: 2px solid $color-text;
+    outline-offset: 1px;
+  }
+}
+
+.heat0 {
+  background: $color-card-rule;
+}
+
+.heat1 {
+  background: $color-heat-1;
+}
+
+.heat2 {
+  background: $color-heat-2;
+}
+
+.heat3 {
+  background: $color-heat-3;
+}
+
+.heat4 {
+  background: $color-heat-4;
+}
+
+.heatFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-xs $space-md;
+  color: $color-text-muted;
+  font-size: 12px;
+}
+
+.heatReadout {
+  color: $color-text;
+  font-variant-numeric: tabular-nums;
+}
+
+.heatLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  .heatCell {
+    width: 10px;
+  }
+}
+
+// Mastered-words line chart
+.chart {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto 140px auto auto;
+  column-gap: $space-sm;
+  color: $color-text-muted;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.axisTop {
+  grid-area: 2 / 1;
+  align-self: start;
+  text-align: right;
+  transform: translateY(-50%);
+}
+
+.axisBottom {
+  grid-area: 2 / 1;
+  align-self: end;
+  text-align: right;
+  transform: translateY(50%);
+}
+
+.plot {
+  position: relative;
+  grid-area: 2 / 2;
+  touch-action: pan-y;
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.grid,
+.baseline {
+  stroke: $color-border;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.grid {
+  stroke-dasharray: 2 4;
+}
+
+.line {
+  fill: none;
+  stroke: $color-primary;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.crosshair {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: $color-text-muted;
+  pointer-events: none;
+}
+
+.marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 2px solid $color-surface;
+  border-radius: 50%;
+  background: $color-primary;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  padding: 2px 8px;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+  box-shadow: $shadow-card;
+  color: $color-text;
+  font-size: 12px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.axisStart,
+.axisEnd {
+  grid-row: 3;
+  grid-column: 2;
+  padding-top: $space-xs;
+}
+
+.axisEnd {
+  justify-self: end;
+}
+
+@media (max-width: $bp-mobile) {
+  .card {
+    padding: $space-md $space-md $space-md 30px;
+  }
+
+  .buckets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .bucketValue {
+    font-size: 24px;
+  }
+
+  .statValue {
+    font-size: 30px;
+  }
+
+  .wordRow {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 0;
+  }
+
+  .wordMeaning {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    font-size: 13px;
+  }
+}

@@ -9,7 +9,7 @@ import { useWords } from "@/hooks/use-words";
 import type { StudyWord } from "@/lib/exercise";
 import { buildReviewQueue, countNewToday, pickExerciseKind } from "@/lib/review-queue";
 import { ExerciseSession } from "./exercise-session";
-import { LearnerGate } from "./learner-gate";
+import { LearnerGate } from "@/features/shared/learner-gate";
 import { toStudyWord, useBackToHub } from "./practice-source";
 import styles from "./exercise-session.module.scss";
 

@@ -17,6 +17,8 @@ export type Palette = {
   cardMargin: string;
   correct: string;
   wrong: string;
+  /** Progress heatmap steps 1–4 (sequential, more reviews → stronger). */
+  heat: [string, string, string, string];
 };
 
 export const palettes: Record<ColorScheme, Palette> = {
@@ -35,6 +37,7 @@ export const palettes: Record<ColorScheme, Palette> = {
     cardMargin: "#f2b8c2",
     correct: "#cfe9d9",
     wrong: "#f8d4d8",
+    heat: ["#c6d3f0", "#8ea7e0", "#4f72c4", "#1d3a8a"],
   },
   dark: {
     bg: "#121722",
@@ -51,6 +54,7 @@ export const palettes: Record<ColorScheme, Palette> = {
     cardMargin: "#6b3a48",
     correct: "#1f4a35",
     wrong: "#4f2630",
+    heat: ["#27365e", "#36529b", "#5f82dc", "#a6bbff"],
   },
 };
 

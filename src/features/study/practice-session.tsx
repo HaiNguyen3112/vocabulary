@@ -9,7 +9,7 @@ import { findCloze } from "@/lib/build-exercise";
 import { filterWords } from "@/lib/filter-words";
 import { pickPairs } from "@/lib/match-board";
 import { ExerciseSession } from "./exercise-session";
-import { LearnerGate } from "./learner-gate";
+import { LearnerGate } from "@/features/shared/learner-gate";
 import { MatchPractice } from "./match-practice";
 import { toStudyWord, useBackToHub, usePracticeState } from "./practice-source";
 import styles from "./exercise-session.module.scss";

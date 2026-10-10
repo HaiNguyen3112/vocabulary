@@ -16,3 +16,11 @@ export const SESSION_SIZE = 20;
 export const PRACTICE_SESSION_SIZE = 15;
 /** Options (answer + distractors) shown in a multiple-choice exercise. */
 export const CHOICE_OPTION_COUNT = 4;
+/** A word "keeps being forgotten" from this many lapses… */
+export const STRUGGLING_MIN_LAPSES = 2;
+/** …or from this FSRS difficulty (1–10). */
+export const STRUGGLING_MIN_DIFFICULTY = 8;
+/** Words listed in "keeps forgetting" on the Progress page. */
+export const STRUGGLING_LIST_SIZE = 20;
+/** Heatmap colour steps above "no reviews". */
+export const HEAT_LEVELS = 4;
