@@ -51,5 +51,5 @@ Change a colour in that order. Components only use `$color-*` / antd tokens, so 
 5. Multiline definitions via `.pre-line` — never HTML injection.
 6. Icons from `@ant-design/icons`; no emoji.
 7. No external image URLs. Fonts are the only external asset (Google Fonts).
-8. Desktop word bank is a split view (list 380px + detail panel); each side scrolls on its own.
+8. Word detail opens over or beside the list, never as its own page: split view ≥992px (list 380px + panel, each scrolls on its own), right drawer 480px at 600–991px, bottom sheet (90%, rounded top, grab handle) below 600px. Drawers use the desk colour (`bg`) so cards stand out.
 9. Every interactive card shows a 2px primary focus outline; motion (lift, shake) is dropped under `prefers-reduced-motion`.

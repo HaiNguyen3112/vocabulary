@@ -7,6 +7,7 @@ import { ROUTES, wordDetailPath, wordEditPath } from "@/app/nav-items";
 import { WORDS_PAGE_SIZE } from "@/constants/words";
 import { CategoryFilterSelect } from "@/features/shared/category-select";
 import { ExcelFileButton } from "@/features/shared/excel-file-button";
+import { useGoBack } from "@/hooks/use-go-back";
 import { useIsDesktop, useIsMobile } from "@/hooks/use-media-query";
 import { useWords } from "@/hooks/use-words";
 import type { ParsedWordRows } from "@/lib/excel-rows";
@@ -14,6 +15,7 @@ import { filterWords } from "@/lib/filter-words";
 import { ImportPreviewModal } from "./import-preview-modal";
 import { useWordListParams } from "./use-word-list-params";
 import { WordCardList } from "./word-card-list";
+import { WordDetailDrawer } from "./word-detail-drawer";
 import { getWordTableColumns } from "./word-table-columns";
 import { WordsSplitView } from "./words-split-view";
 import styles from "./words-workspace.module.scss";
@@ -22,7 +24,7 @@ import styles from "./words-workspace.module.scss";
 const INTERACTIVE_SELECTOR = "button, a, input, .ant-tag, .ant-popover";
 
 type Props = {
-  /** Word shown in the desktop split view (`/vocabulary-management/:id`). */
+  /** Open word (`/vocabulary-management/:id`): split view ≥992px, drawer below. */
   selectedId?: string;
 };
 
@@ -33,6 +35,8 @@ export function WordsWorkspace({ selectedId }: Props) {
   const isDesktop = useIsDesktop();
   const [importRows, setImportRows] = useState<ParsedWordRows | null>(null);
   const { search, category, page, listSearch, updateParams } = useWordListParams();
+  // Drawer close = history back when the list opened it, so Back and X land on the same entry.
+  const closeDrawer = useGoBack(ROUTES.words + listSearch);
 
   const filteredWords = filterWords(words, { search, category });
   const wordsById = new Map(words.map((word) => [word.id, word]));
@@ -112,6 +116,16 @@ export function WordsWorkspace({ selectedId }: Props) {
               if (!(event.target as HTMLElement).closest(INTERACTIVE_SELECTOR)) handleOpen(word.id);
             },
           })}
+        />
+      )}
+
+      {!isDesktop && (
+        <WordDetailDrawer
+          id={selectedId}
+          placement={isMobile ? "bottom" : "right"}
+          onClose={closeDrawer}
+          // Replace, so related words browsed inside the drawer do not pile up in history.
+          onOpenRelated={(id) => navigate(wordDetailPath(id) + listSearch, { replace: true })}
         />
       )}
 

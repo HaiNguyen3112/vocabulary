@@ -23,7 +23,7 @@ src/
   features/
     study/             # StudyWorkspace → StudySession → MatchBoard, useMatchGame, BoardProgress, use-board-keyboard
     words/             # WordsWorkspace (split view ≥992px / table ≥600px / WordCardList <600px, filters in URL via
-                       # useWordListParams), WordsSplitView + WordIndexList, WordDetail (page or panel),
+                       # useWordListParams), WordsSplitView + WordIndexList (≥992px), WordDetailDrawer (<992px), WordDetail,
                        # WordEditForm (page, + SensesField, RelatedWordsField), ImportPreviewModal
     shared/            # CategoryFilterSelect, CategoryTag, PartOfSpeechTag, WordSenses, ExcelFileButton, readWordsFromExcel
   hooks/               # use-words (store + first load), use-media-query (mobile/desktop/small), use-color-scheme, use-go-back
@@ -65,12 +65,15 @@ All path segments and code identifiers: **English**. Component files ≤ **200 l
 - Single add / edit rejects a spelling another word already uses (client validator + server `409`).
 - A word has one or more **senses** (word type + definition + example sentences). The study board shows `formatDefinition(senses)` and never the examples (they contain the word).
 - **Related words** = word family, two-way and transitive. Table: click a related tag to peek at its meaning. Detail page: related words listed with their word types + meanings; click to open that word's page.
-- **Routes:** `/vocabulary-management` (list, `?q=&category=&page=`), `/vocabulary-management/:id` (detail, read-only), `/vocabulary-management/:id/edit` and `/vocabulary-management/new` (form). Clicking a row/card opens the detail; the pencil opens edit. Saving an edit returns to the previous page; saving a new word replaces the form with its detail page.
+- **Routes:** `/vocabulary-management` (list, `?q=&category=&page=`), `/vocabulary-management/:id` (list + that word, read-only), `/vocabulary-management/:id/edit` and `/vocabulary-management/new` (form). Clicking a row/card opens the detail; the pencil opens edit. Saving an edit returns to the previous page; saving a new word replaces the form with the list + its detail.
 - Mobile (<600px): word cards instead of the table.
 - **Shell:** top bar (brand, Study / Words ≥992px, theme toggle); below 992px a fixed bottom tab bar (Study · Words · Add).
 - **Dark mode:** toggle cycles System → Light → Dark, stored in `localStorage["study-vocabulary:color-scheme"]`; `data-theme` on `<html>` switches the CSS variables (set before first paint by `index.html`).
 - **Board:** progress `matched / 8 pairs · misses`; keyboard: arrows move focus (skip matched cards), Enter picks, Esc clears, R deals a new board (ignored while typing or with Ctrl/Cmd).
-- **Split view (≥992px):** `/vocabulary-management/:id` shows the list (compact) beside the word; Close returns to the list with the same `?q=&category=&page=`. Below 992px the same route is the full detail page.
+- **Word detail never leaves the list:** `/vocabulary-management/:id` keeps the list mounted (same scroll, filters in `?q=&category=&page=`).
+  - ≥992px: split view — compact list beside the word; Close returns to the list.
+  - 600–991px: drawer from the right; <600px: bottom sheet (90% height, swipe down on the handle to close).
+  - Drawer close (X, Esc, mask, swipe) = history back, so the browser/phone Back gesture closes it too; related words open in the same drawer with `replace` (no history pile-up).
 
 ## Checklist before claiming a feature done
 

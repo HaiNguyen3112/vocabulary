@@ -28,7 +28,7 @@ export function WordsSplitView({ words, selectedId, isLoading, pagination, onOpe
       </div>
       <div className={styles.detailPane}>
         {selectedId ? (
-          <WordDetail key={selectedId} id={selectedId} variant="panel" onClose={onClose} />
+          <WordDetail key={selectedId} id={selectedId} onClose={onClose} onOpenRelated={onOpen} />
         ) : (
           <Empty className={styles.placeholder} description="Select a word to see its meanings and examples" />
         )}

@@ -68,6 +68,7 @@ function buildTheme(scheme: ColorScheme): ThemeConfig {
       colorLink: palette.primary,
       colorBgLayout: palette.bg,
       colorBgContainer: palette.surface,
+      colorBgElevated: palette.surface,
       colorBorder: palette.border,
       colorText: palette.text,
       colorTextSecondary: palette.textMuted,
@@ -78,6 +79,8 @@ function buildTheme(scheme: ColorScheme): ThemeConfig {
     },
     components: {
       Table: { headerBg: palette.bg, rowHoverBg: palette.cardSelected },
+      // Detail drawer sits on the desk colour so its index cards stand out.
+      Drawer: { colorBgElevated: palette.bg },
       // The dark override above would put dark text on the tooltip's grey — keep tooltips light-on-dark.
       ...(scheme === "dark" && { Tooltip: { colorTextLightSolid: "#ffffff" } }),
     },
