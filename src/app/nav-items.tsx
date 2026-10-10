@@ -1,4 +1,4 @@
-import { HomeOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { PlusCircleOutlined, ReadOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import type { ReactNode } from "react";
 
 export const ROUTES = {
@@ -18,14 +18,21 @@ export type NavItem = {
   icon: ReactNode;
 };
 
+/** Desktop top-bar links. */
 export const NAV_ITEMS: NavItem[] = [
-  { path: ROUTES.study, label: "Vocabulary Studying", icon: <HomeOutlined /> },
-  { path: ROUTES.words, label: "Vocabulary Management", icon: <UnorderedListOutlined /> },
+  { path: ROUTES.study, label: "Study", icon: <ReadOutlined /> },
+  { path: ROUTES.words, label: "Words", icon: <UnorderedListOutlined /> },
 ];
 
-/** Nav item owning a path (longest prefix wins, so word pages highlight "Management"). */
-export function findNavKey(pathname: string): string {
-  const matches = NAV_ITEMS.filter(
+/** Mobile bottom tabs — adds a shortcut to the new-word form. */
+export const TAB_ITEMS: NavItem[] = [
+  ...NAV_ITEMS,
+  { path: ROUTES.wordNew, label: "Add", icon: <PlusCircleOutlined /> },
+];
+
+/** Item owning a path (longest prefix wins, so word pages highlight "Words"). */
+export function findNavKey(pathname: string, items: readonly NavItem[] = NAV_ITEMS): string {
+  const matches = items.filter(
     (item) => pathname === item.path || pathname.startsWith(`${item.path.replace(/\/$/, "")}/`),
   );
   return matches.sort((a, b) => b.path.length - a.path.length)[0]?.path ?? ROUTES.study;

@@ -1,7 +1,12 @@
+@use "../../styles/tokens" as *;
+
 .wordLink {
   height: auto;
   padding: 0;
-  font-weight: 600;
+  color: $color-word;
+  font-family: $font-display;
+  font-size: 15px;
+  font-weight: 700;
   white-space: normal;
   text-align: left;
 }

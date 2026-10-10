@@ -1,0 +1,33 @@
+@use "../../styles/tokens" as *;
+
+// Bottom sheet: rounded top edge, grab handle, content clear of the home indicator.
+.sheet {
+  :global(.ant-drawer-content) {
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+.handle {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 24px;
+  background: $color-bg;
+  touch-action: none;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: $color-border;
+    transform: translateX(-50%);
+  }
+}
+
+.body {
+  padding: $space-sm $space-md calc(#{$space-lg} + env(safe-area-inset-bottom, 0px));
+}

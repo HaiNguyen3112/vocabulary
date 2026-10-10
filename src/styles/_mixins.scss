@@ -1,0 +1,18 @@
+@use "./tokens" as *;
+
+/// Index card: white card with a red margin line and (optionally) blue rules.
+@mixin index-card($ruled: true) {
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  box-shadow: $shadow-card;
+  background-color: $color-surface;
+  padding-left: 22px;
+
+  @if $ruled {
+    background-image:
+      linear-gradient(90deg, transparent 13px, $color-card-margin 13px 14px, transparent 14px),
+      repeating-linear-gradient(180deg, transparent 0 21px, $color-card-rule 21px 22px);
+  } @else {
+    background-image: linear-gradient(90deg, transparent 13px, $color-card-margin 13px 14px, transparent 14px);
+  }
+}

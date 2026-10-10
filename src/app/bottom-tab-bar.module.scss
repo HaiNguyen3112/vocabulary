@@ -1,0 +1,44 @@
+@use "../styles/tokens" as *;
+
+.bar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  height: calc(#{$tabbar-height} + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  border-top: 1px solid $color-border;
+  background: $color-chrome;
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: $color-text-muted;
+  font-size: 12px;
+  font-weight: 500;
+
+  &[aria-current="page"] {
+    color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -4px;
+  }
+}
+
+.icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+@media (min-width: $bp-lg) {
+  .bar {
+    display: none;
+  }
+}

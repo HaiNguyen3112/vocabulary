@@ -15,6 +15,7 @@ export function useMatchGame(words: readonly MatchSource[]) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [matchedKeys, setMatchedKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [flash, setFlash] = useState<Flash | null>(null);
+  const [mistakeCount, setMistakeCount] = useState(0);
   const timersRef = useRef<number[]>([]);
 
   const clearTimers = () => {
@@ -34,6 +35,12 @@ export function useMatchGame(words: readonly MatchSource[]) {
     setSelectedId(null);
     setMatchedKeys(new Set());
     setFlash(null);
+    setMistakeCount(0);
+  };
+
+  /** Drops a half-made pair (Esc); ignored while a result is flashing. */
+  const clearSelection = () => {
+    if (!flash) setSelectedId(null);
   };
 
   const handleCorrect = (first: MatchCard, second: MatchCard) => {
@@ -64,6 +71,7 @@ export function useMatchGame(words: readonly MatchSource[]) {
       return;
     }
     setFlash({ ids: [selected.id, card.id], result: "wrong" });
+    setMistakeCount((count) => count + 1);
     schedule(() => {
       setFlash(null);
       setSelectedId(null);
@@ -76,5 +84,7 @@ export function useMatchGame(words: readonly MatchSource[]) {
     return card.id === selectedId ? "selected" : "idle";
   };
 
-  return { cards, getCardState, handleSelect, dealNewBoard };
+  const progress = { matched: matchedKeys.size, total: cards.length / 2, mistakes: mistakeCount };
+
+  return { cards, getCardState, handleSelect, dealNewBoard, clearSelection, progress };
 }

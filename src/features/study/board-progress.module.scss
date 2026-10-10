@@ -1,0 +1,21 @@
+@use "../../styles/tokens" as *;
+
+.progress {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mistakes {
+  color: $color-text-muted;
+}
+
+@media (max-width: $bp-mobile - 1px) {
+  .progress {
+    width: 100%;
+    margin-left: 0;
+  }
+}

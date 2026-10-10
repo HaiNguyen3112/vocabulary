@@ -36,6 +36,14 @@
     flex-direction: column;
   }
 
+  .filters {
+    flex-wrap: wrap;
+
+    > :first-child {
+      flex: 1 1 100%;
+    }
+  }
+
   .actions {
     justify-content: flex-end;
   }
@@ -43,4 +51,34 @@
 
 .row {
   cursor: pointer;
+}
+
+// Desktop split view: the workspace fills the viewport; list and detail scroll on their own.
+.desktop {
+  height: calc(100dvh - #{$topbar-height} - #{$space-lg * 2});
+  min-height: 480px;
+}
+
+.split {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: $split-list-width minmax(0, 1fr);
+  gap: $space-lg;
+}
+
+.listPane {
+  overflow: auto;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+}
+
+.detailPane {
+  overflow: auto;
+  padding-right: $space-xs;
+}
+
+.placeholder {
+  padding-top: $space-lg * 3;
 }

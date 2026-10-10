@@ -8,7 +8,7 @@ alwaysApply: false
 
 - Ant Design 5 components; theme via `ConfigProvider` with tokens from `src/styles/theme.ts`.
 - SCSS modules per component (`*.module.scss`); shared values from `src/styles/_tokens.scss`.
-- Shell: fixed sider (≥lg), collapsible to 0 on mobile; content max-width.
+- Shell: sticky top bar (brand · nav ≥lg · theme toggle) + fixed bottom tab bar below lg; content max-width.
 - Category colours from `CATEGORY_COLOR` (`src/constants/categories.ts`) — never inline.
 - Mobile-first: the study board must work at 360px width.
 - Docs: `docs/DESIGN.md`

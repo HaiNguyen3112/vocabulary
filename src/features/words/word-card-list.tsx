@@ -1,9 +1,9 @@
 import { EditOutlined } from "@ant-design/icons";
 import { Button, Empty, List, type PaginationProps } from "antd";
 import type { Word } from "@shared/word";
-import { PART_OF_SPEECH_LABEL } from "@shared/part-of-speech";
 import { CategoryTag } from "@/features/shared/category-tag";
 import { WordSenses } from "@/features/shared/word-senses";
+import { partsOfSpeechLabel } from "@/lib/word-labels";
 import styles from "./word-card-list.module.scss";
 
 type Props = {
@@ -14,13 +14,6 @@ type Props = {
   onOpen: (id: string) => void;
   onEdit: (word: Word) => void;
 };
-
-function partsLabel(word: Word): string {
-  const labels = new Set(
-    word.senses.flatMap((sense) => (sense.partOfSpeech ? [PART_OF_SPEECH_LABEL[sense.partOfSpeech]] : [])),
-  );
-  return [...labels].join(", ");
-}
 
 /** Mobile word list: one card per word with every meaning and its related words. */
 export function WordCardList({ words, wordsById, isLoading, pagination, onOpen, onEdit }: Props) {
@@ -47,7 +40,7 @@ export function WordCardList({ words, wordsById, isLoading, pagination, onOpen, 
                 {related.map((item) => (
                   <button key={item.id} type="button" className={styles.relatedItem} onClick={() => onOpen(item.id)}>
                     ↳ <strong>{item.word}</strong>
-                    {partsLabel(item) && <span className={styles.parts}> · {partsLabel(item)}</span>}
+                    {partsOfSpeechLabel(item) && <span className={styles.parts}> · {partsOfSpeechLabel(item)}</span>}
                   </button>
                 ))}
               </div>

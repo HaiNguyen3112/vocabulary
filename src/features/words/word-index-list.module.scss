@@ -1,0 +1,77 @@
+@use "../../styles/tokens" as *;
+
+.list {
+  :global(.ant-list-items) {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  :global(.ant-list-pagination) {
+    margin: $space-sm 0;
+  }
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: $space-sm $space-md $space-sm calc(#{$space-md} - 3px);
+  border: 0;
+  border-bottom: 1px solid $color-border;
+  border-left: 3px solid transparent;
+  background: $color-surface;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: $color-card-selected;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -2px;
+  }
+
+  &[aria-current="true"] {
+    border-left-color: $color-primary;
+    background: $color-card-selected;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-xs $space-sm;
+
+  :global(.ant-tag) {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.word {
+  color: $color-word;
+  font-family: $font-display;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.parts {
+  color: $color-text-muted;
+  font-size: 12px;
+}
+
+.meaning {
+  overflow: hidden;
+  color: $color-definition;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
