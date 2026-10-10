@@ -64,12 +64,18 @@ bottom tab bar, which takes ~94px on an iPhone once launched from the home scree
   events. (`navigator.onLine === true` does not guarantee reachability; a failed write still shows the
   existing error message, which is acceptable.)
 - `src/app/offline-banner.tsx`: slim banner under the top bar while offline:
-  "Đang offline — chỉ xem và luyện tập". Uses `$color-chrome` / muted text tokens; `role="status"`.
+  "Đang offline — chỉ xem và luyện tập (không lưu tiến độ)". Uses `$color-chrome` / muted text tokens; `role="status"`.
 - When offline, disable with tooltip "Cần kết nối mạng":
   - Words: "Thêm từ", "Import", the edit button / Save in `word-edit-form.tsx`.
   - Study hub: the FSRS review entry (practice-mode cards stay enabled).
   - Learner gate: sign-in / register submit.
   Each call site reads `useOnlineStatus()`; no global interception.
+- Free-practice exercises normally record a bank word's first answer as a review
+  (`use-exercise-session.ts`). Offline they **skip recording** (no "Could not save progress" toast per
+  answer); the banner already says progress is not saved: "Đang offline — chỉ xem và luyện tập (không lưu
+  tiến độ)".
+- Practice is behind `LearnerGate`: a learner already signed in (localStorage) practises offline; signing in
+  for the first time needs a network.
 
 ## 4. Word bank offline fallback
 
