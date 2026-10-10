@@ -32,3 +32,8 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
 export function getErrorMessage(error: unknown, fallback = "Something went wrong, please try again"): string {
   return error instanceof Error && error.message ? error.message : fallback;
 }
+
+/** `fetch` rejects with a TypeError when offline (or the service worker has no cached copy). */
+export function isNetworkError(error: unknown): boolean {
+  return error instanceof TypeError;
+}
