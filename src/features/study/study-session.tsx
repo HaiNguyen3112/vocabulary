@@ -2,26 +2,28 @@ import { ReloadOutlined } from "@ant-design/icons";
 import { Button, Empty } from "antd";
 import type { ReactNode } from "react";
 import type { MatchSource } from "@/lib/match-board";
+import { BoardProgress } from "./board-progress";
 import { MatchBoard } from "./match-board";
 import { useMatchGame } from "./use-match-game";
 import styles from "./study-session.module.scss";
 
 type Props = {
   words: readonly MatchSource[];
-  /** Extra toolbar controls rendered after "Reload list". */
+  /** Extra toolbar controls rendered after "New board". */
   toolbar?: ReactNode;
 };
 
 export function StudySession({ words, toolbar }: Props) {
-  const { cards, getCardState, handleSelect, dealNewBoard } = useMatchGame(words);
+  const { cards, getCardState, handleSelect, dealNewBoard, progress } = useMatchGame(words);
 
   return (
     <div className={styles.session}>
       <div className={styles.toolbar}>
-        <Button icon={<ReloadOutlined />} onClick={dealNewBoard} disabled={words.length === 0}>
-          Reload list
+        <Button type="primary" icon={<ReloadOutlined />} onClick={dealNewBoard} disabled={words.length === 0}>
+          New board
         </Button>
         {toolbar}
+        <BoardProgress {...progress} />
       </div>
       {cards.length > 0 ? (
         <MatchBoard cards={cards} getCardState={getCardState} onSelect={handleSelect} />
