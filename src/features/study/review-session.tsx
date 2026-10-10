@@ -1,7 +1,9 @@
 import { Alert, Button, Result, Spin } from "antd";
 import { useState } from "react";
 import type { WordReview } from "@shared/review";
+import { OFFLINE_HINT } from "@/constants/offline";
 import { NEW_WORDS_PER_DAY, SESSION_SIZE } from "@/constants/study";
+import { useOnlineStatus } from "@/hooks/use-online-status";
 import { useReviews } from "@/hooks/use-reviews";
 import { useWords } from "@/hooks/use-words";
 import type { StudyWord } from "@/lib/exercise";
@@ -55,7 +57,19 @@ function ReviewLoader() {
   const { byWordId, status, isLoading: isLoadingReviews } = useReviews();
   const [round, setRound] = useState(0);
   const handleExit = useBackToHub();
+  const isOnline = useOnlineStatus();
 
+  // Ratings are scheduled on the server: offline the session would end with nothing saved.
+  if (!isOnline) {
+    return (
+      <Result
+        status="warning"
+        title={OFFLINE_HINT}
+        subTitle="Ôn tập lưu tiến độ lên server — hãy kết nối mạng rồi thử lại. Luyện tự do vẫn dùng được offline."
+        extra={<Button onClick={handleExit}>Back to hub</Button>}
+      />
+    );
+  }
   if (isLoadingWords || isLoadingReviews) {
     return (
       <div className={styles.loading}>

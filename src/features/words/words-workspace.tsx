@@ -11,6 +11,7 @@ import { useGoBack } from "@/hooks/use-go-back";
 import { useIsDesktop, useIsMobile } from "@/hooks/use-media-query";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useWordPage } from "@/hooks/use-word-page";
+import { useWords } from "@/hooks/use-words";
 import type { ParsedWordRows } from "@/lib/excel-rows";
 import { ImportPreviewModal } from "./import-preview-modal";
 import { useWordListParams } from "./use-word-list-params";
@@ -36,6 +37,8 @@ export function WordsWorkspace({ selectedId }: Props) {
   const isMobile = useIsMobile();
   const isDesktop = useIsDesktop();
   const [importRows, setImportRows] = useState<ParsedWordRows | null>(null);
+  // Loads the full list once so the word bank still searches offline (see use-word-page).
+  useWords();
   const { search, category, page, listSearch, updateParams } = useWordListParams();
   // Drawer close = history back when the list opened it, so Back and X land on the same entry.
   const closeDrawer = useGoBack(ROUTES.words + listSearch);

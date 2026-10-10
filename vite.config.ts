@@ -6,7 +6,10 @@ import { VitePWA } from "vite-plugin-pwa";
 const API_TARGET = "http://127.0.0.1:3001";
 const DAY_SECONDS = 24 * 60 * 60;
 
-/** Offline: app shell precached, `GET /api/*` network-first (writes always need the network). */
+/**
+ * Offline: app shell precached, `GET /api/*` network-first (writes always need the network).
+ * No network timeout: a slow response must never be answered with stale data while online.
+ */
 const pwa = VitePWA({
   registerType: "prompt",
   injectRegister: false,
@@ -41,7 +44,6 @@ const pwa = VitePWA({
         handler: "NetworkFirst",
         options: {
           cacheName: "api",
-          networkTimeoutSeconds: 4,
           cacheableResponse: { statuses: [200] },
           expiration: { maxEntries: 200, maxAgeSeconds: 30 * DAY_SECONDS },
         },
