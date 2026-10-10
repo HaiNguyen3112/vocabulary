@@ -10,8 +10,14 @@
   gap: 10px;
 }
 
+// Text is centred in the card, so the rules hang off the text (`ruled-anchor`), not the card top.
+$word-baseline: 18px;
+$word-baseline-mobile: 17px;
+$definition-baseline: 16px;
+
 .card {
-  @include index-card;
+  @include index-card($ruled: false);
+  @include ruled-host;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,6 +44,7 @@
 }
 
 .word {
+  @include ruled-anchor($word-baseline);
   width: 100%;
   color: $color-word;
   font-family: $font-display;
@@ -47,6 +54,7 @@
 }
 
 .definition {
+  @include ruled-anchor($definition-baseline);
   width: 100%;
   color: $color-definition;
 }
@@ -115,6 +123,7 @@
   }
 
   .word {
+    @include ruled-anchor-baseline($word-baseline-mobile);
     font-size: 14px;
   }
 }

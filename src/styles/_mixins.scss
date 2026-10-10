@@ -1,7 +1,9 @@
 @use "./tokens" as *;
 
 /// Index card: white card with a red margin line and (optionally) blue rules.
-@mixin index-card($ruled: true) {
+/// `$rule-offset` moves the rules so text with `line-height: $rule-height` sits on them
+/// (rule top = content top + baseline: `$rule-offset: $padding-top + $baseline - $rule-height + 1px`).
+@mixin index-card($ruled: true, $rule-offset: 0px) {
   border: 1px solid $color-border;
   border-radius: $radius;
   box-shadow: $shadow-card;
@@ -11,8 +13,48 @@
   @if $ruled {
     background-image:
       linear-gradient(90deg, transparent 13px, $color-card-margin 13px 14px, transparent 14px),
-      repeating-linear-gradient(180deg, transparent 0 21px, $color-card-rule 21px 22px);
+      linear-gradient(180deg, transparent ($rule-height - 1px), $color-card-rule ($rule-height - 1px));
+    // One rule per tile, so the offset never leaves a seam at the top of the card.
+    background-size: auto, 100% $rule-height;
+    background-position: 0 0, 0 $rule-offset;
+    background-repeat: no-repeat, repeat-y;
   } @else {
     background-image: linear-gradient(90deg, transparent 13px, $color-card-margin 13px 14px, transparent 14px);
+  }
+}
+
+
+/// Card whose text is centred, so the rules cannot start at a fixed place: pair
+/// `index-card($ruled: false)` + `ruled-host` on the card with `ruled-anchor` on the text.
+@mixin ruled-host {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/// Hangs the rules off this element: one rule under the baseline of each of its lines,
+/// continuing across the whole card (clipped by `ruled-host`).
+/// `$baseline` = distance from the top of a line box to the text baseline for this font.
+@mixin ruled-anchor($baseline) {
+  position: relative;
+  line-height: $rule-height;
+
+  &::before {
+    content: "";
+    position: absolute;
+    // 50 rules up and down: a whole number of rules, so the pattern stays in phase.
+    inset: ($rule-height * -50) -2000px;
+    z-index: -1;
+    pointer-events: none;
+    background-image: linear-gradient(180deg, transparent ($rule-height - 1px), $color-card-rule ($rule-height - 1px));
+    background-size: 100% $rule-height;
+    background-position: 0 ($baseline + 1px);
+    background-repeat: repeat-y;
+  }
+}
+
+/// Same rules for a different font size (e.g. in a media query).
+@mixin ruled-anchor-baseline($baseline) {
+  &::before {
+    background-position-y: $baseline + 1px;
   }
 }

@@ -22,3 +22,17 @@
   color: $color-text-muted;
   font-style: italic;
 }
+
+.ruled {
+  gap: 0;
+
+  // Centre the tag in the line so the text keeps the same baseline as plain lines.
+  .definition {
+    align-items: center;
+    row-gap: 0;
+  }
+
+  .examples {
+    margin-top: 0;
+  }
+}

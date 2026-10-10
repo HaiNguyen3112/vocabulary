@@ -6,12 +6,14 @@ type Props = {
   senses: readonly WordSense[];
   /** Hide example sentences (e.g. in a compact popover). */
   hasExamples?: boolean;
+  /** On a ruled card: no gaps between lines, so every line stays on a rule. */
+  isRuled?: boolean;
 };
 
 /** Meanings grouped by part of speech, each with its example sentences. */
-export function WordSenses({ senses, hasExamples = true }: Props) {
+export function WordSenses({ senses, hasExamples = true, isRuled = false }: Props) {
   return (
-    <ol className={styles.senses}>
+    <ol className={`${styles.senses} ${isRuled ? styles.ruled : ""}`}>
       {senses.map((sense, index) => (
         <li key={index} className={styles.sense}>
           <div className={styles.definition}>

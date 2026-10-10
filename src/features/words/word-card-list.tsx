@@ -31,7 +31,7 @@ export function WordCardList({ words, wordsById, isLoading, onOpen, onEdit }: Pr
                 <span className={styles.word}>{word.word}</span>
                 <CategoryTag category={word.category} />
               </span>
-              <WordSenses senses={word.senses} hasExamples={false} />
+              <WordSenses senses={word.senses} hasExamples={false} isRuled />
             </button>
             {related.length > 0 && (
               <div className={styles.related}>

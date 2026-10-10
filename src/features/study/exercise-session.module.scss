@@ -97,10 +97,14 @@ $session-max-width: 720px;
   line-height: 1.2;
 }
 
+// Rules sit under each line's baseline (17px into a 22px line for both font sizes).
+$prompt-padding-y: $space-md;
+$prompt-baseline: 17px;
+
 .promptText,
 .sentence {
-  @include index-card;
-  padding: $space-md $space-md $space-md 30px;
+  @include index-card($rule-offset: $prompt-padding-y + $prompt-baseline - $rule-height + 1px);
+  padding: $prompt-padding-y $space-md $prompt-padding-y 30px;
   color: $color-definition;
   font-size: 17px;
   line-height: 22px;
@@ -206,14 +210,22 @@ $session-max-width: 720px;
 }
 
 // Flashcard
+// Text is centred, so the rules hang off the word. The word takes two rules; the gap under it
+// puts the meaning's baseline exactly two rules below the word's.
+$flashcard-word-baseline: 35px;
+$flashcard-meaning-gap: 18px;
+$flashcard-word-baseline-mobile: 33px;
+$flashcard-meaning-gap-mobile: 16px;
+
 .flashcard {
-  @include index-card;
+  @include index-card($ruled: false);
+  @include ruled-host;
   min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: $space-md;
+  gap: $flashcard-meaning-gap;
   padding: $space-lg $space-md $space-lg 30px;
   font: inherit;
   cursor: pointer;
@@ -235,10 +247,13 @@ $session-max-width: 720px;
 }
 
 .flashcardWord {
+  @include ruled-anchor($flashcard-word-baseline);
   font-size: 30px;
+  line-height: $rule-height * 2;
 }
 
 .flashcardMeaning {
+  line-height: $rule-height;
   color: $color-definition;
   font-size: 17px;
   text-align: center;
@@ -459,9 +474,11 @@ $session-max-width: 720px;
 
   .flashcard {
     min-height: 160px;
+    gap: $flashcard-meaning-gap-mobile;
   }
 
   .flashcardWord {
+    @include ruled-anchor-baseline($flashcard-word-baseline-mobile);
     font-size: 26px;
   }
 

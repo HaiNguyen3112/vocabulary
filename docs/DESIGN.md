@@ -44,7 +44,7 @@ Change a colour in that order. Components only use `$color-*` / antd tokens, so 
 
 ## Principles
 
-1. Cards use `@include index-card` (ruled) or `index-card($ruled: false)` for forms and lists of buttons.
+1. Cards use `@include index-card` (ruled) or `index-card($ruled: false)` for forms and lists of buttons. Text on a ruled card is written on the rules: `line-height: $rule-height` (22px), no gaps between lines, and `index-card($rule-offset: …)` puts each rule under the baselines (see `word-card-list.module.scss`). Cards whose text is centred (match board, flashcard) use `ruled-host` + `ruled-anchor($baseline)` so the rules follow the text.
 2. Board grid: 4 columns (definition, word, definition, word); 2 columns under 400px.
 3. Cards are `<button>`s — keyboard + screen reader friendly; matched cards keep their slot (`visibility: hidden`).
 4. Category = antd preset tag colour from `CATEGORY_COLOR`; label from `CATEGORY_LABEL`.

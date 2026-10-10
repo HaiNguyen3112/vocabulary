@@ -9,16 +9,21 @@
   }
 }
 
+// Every line of the card is one rule tall with no gaps between blocks, so words sit on the rules
+// like handwriting. The offset puts each rule just under the baseline of a line.
+$card-padding-y: 11px;
+$baseline-in-line: 16px;
+
 .card {
   position: relative;
-  @include index-card;
-  padding: $space-md $space-md $space-md 26px;
+  @include index-card($rule-offset: $card-padding-y + $baseline-in-line - $rule-height + 1px);
+  padding: $card-padding-y $space-md $card-padding-y 26px;
+  line-height: $rule-height;
 }
 
 .main {
   display: flex;
   flex-direction: column;
-  gap: $space-sm;
   width: 100%;
   padding: 0 $space-lg 0 0;
   border: 0;
@@ -33,10 +38,13 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: $space-sm;
+  gap: 0 $space-sm;
 }
 
 .word {
+  position: relative;
+  // The larger serif sits 2px lower in its line than body text — lift it onto the same rule.
+  top: -2px;
   color: $color-word;
   font-family: $font-display;
   font-size: 17px;
@@ -47,14 +55,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: $space-xs;
-  margin-top: $space-sm;
-  padding-top: $space-sm;
-  border-top: 1px dashed $color-border;
 }
 
 .relatedItem {
   padding: 0;
+  line-height: inherit;
   border: 0;
   background: none;
   color: $color-primary;
