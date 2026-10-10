@@ -54,18 +54,16 @@ export function WordDetail({ id, onClose, onOpenRelated }: Props) {
               onClick={() => speakText(word.word, SPEECH_LANG)}
             />
             <CategoryTag category={word.category} />
+            <Tooltip title="Edit">
+              <Button
+                type="text"
+                shape="circle"
+                icon={<EditOutlined />}
+                aria-label={`Edit ${word.word}`}
+                onClick={() => navigate(wordEditPath(word.id))}
+              />
+            </Tooltip>
           </>
-        }
-        extra={
-          <Tooltip title="Edit">
-            <Button
-              type="text"
-              shape="circle"
-              icon={<EditOutlined />}
-              aria-label={`Edit ${word.word}`}
-              onClick={() => navigate(wordEditPath(word.id))}
-            />
-          </Tooltip>
         }
       />
 
