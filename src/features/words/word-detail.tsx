@@ -1,5 +1,5 @@
-import { CloseOutlined, EditOutlined, SoundOutlined } from "@ant-design/icons";
-import { Button, Result, Spin, Typography } from "antd";
+import { EditOutlined, SoundOutlined } from "@ant-design/icons";
+import { Button, Result, Spin, Tooltip, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { wordEditPath } from "@/app/nav-items";
 import { SPEECH_LANG } from "@/constants/study";
@@ -13,6 +13,7 @@ import styles from "./word-detail.module.scss";
 
 type Props = {
   id: string;
+  /** Used by "Back to word list" when the word does not exist; the drawer / split view close themselves. */
   onClose: () => void;
   /** Opens a related word in the same panel / drawer. */
   onOpenRelated: (id: string) => void;
@@ -56,12 +57,15 @@ export function WordDetail({ id, onClose, onOpenRelated }: Props) {
           </>
         }
         extra={
-          <>
-            <Button type="primary" icon={<EditOutlined />} onClick={() => navigate(wordEditPath(word.id))}>
-              Edit
-            </Button>
-            <Button type="text" icon={<CloseOutlined />} aria-label="Close" onClick={onClose} />
-          </>
+          <Tooltip title="Edit">
+            <Button
+              type="text"
+              shape="circle"
+              icon={<EditOutlined />}
+              aria-label={`Edit ${word.word}`}
+              onClick={() => navigate(wordEditPath(word.id))}
+            />
+          </Tooltip>
         }
       />
 
