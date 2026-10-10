@@ -1,15 +1,23 @@
-import { Button } from "antd";
+import { Button, type ButtonProps } from "antd";
 import { useState } from "react";
 import { RATINGS, type Rating } from "@shared/review";
 import type { ExerciseProps } from "./use-exercise-session";
 import { useExerciseKeys } from "./use-exercise-keys";
 import styles from "./exercise-session.module.scss";
 
+// Labels describe the learner's recall, not the word; colours run forgot (red) → too easy (blue).
 const RATING_LABEL: Record<Rating, string> = {
-  again: "Again",
-  hard: "Hard",
-  good: "Good",
-  easy: "Easy",
+  again: "Quên rồi",
+  hard: "Nhớ mang máng",
+  good: "Nhớ",
+  easy: "Quá dễ",
+};
+
+const RATING_COLOR: Record<Rating, ButtonProps["color"]> = {
+  again: "red",
+  hard: "orange",
+  good: "green",
+  easy: "blue",
 };
 
 /** Flip with a click or Space, then rate recall with the buttons or keys 1–4. */
@@ -32,7 +40,7 @@ export function FlashcardExercise({ exercise, disabled, onAnswer }: ExerciseProp
 
   return (
     <div className={styles.exercise}>
-      <p className={styles.instruction}>{isFlipped ? "How well did you know it?" : "Recall the meaning, then flip"}</p>
+      <p className={styles.instruction}>{isFlipped ? "Bạn nhớ từ này thế nào?" : "Recall the meaning, then flip"}</p>
       <button
         type="button"
         className={`${styles.flashcard} ${isFlipped ? styles.flashcardBack : ""}`}
@@ -46,7 +54,14 @@ export function FlashcardExercise({ exercise, disabled, onAnswer }: ExerciseProp
       {isFlipped && (
         <div className={styles.ratings} role="group" aria-label="Rate your recall">
           {RATINGS.map((rating, index) => (
-            <Button key={rating} size="large" disabled={disabled} onClick={() => handleRate(rating)}>
+            <Button
+              key={rating}
+              size="large"
+              color={RATING_COLOR[rating]}
+              variant="filled"
+              disabled={disabled}
+              onClick={() => handleRate(rating)}
+            >
               <kbd className={styles.optionKey}>{index + 1}</kbd>
               {RATING_LABEL[rating]}
             </Button>
