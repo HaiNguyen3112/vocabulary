@@ -38,3 +38,16 @@ export function gradeToRating(grade: Grade): Rating {
   if (grade === "close") return "hard";
   return "again";
 }
+
+/** Flashcard self-rating → grade: again is wrong, hard is close, good / easy are correct. */
+export function ratingToGrade(rating: Rating): Grade {
+  switch (rating) {
+    case "again":
+      return "wrong";
+    case "hard":
+      return "close";
+    case "good":
+    case "easy":
+      return "correct";
+  }
+}

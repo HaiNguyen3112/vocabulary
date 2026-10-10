@@ -6,3 +6,9 @@ export function speakText(text: string, lang: string): boolean {
   window.speechSynthesis.speak(utterance);
   return true;
 }
+
+/** Stops anything still being spoken. */
+export function cancelSpeech(): void {
+  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+}

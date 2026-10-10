@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { gradeAnswer, gradeToRating, normalizeAnswer } from "./grade-answer";
+import { gradeAnswer, gradeToRating, normalizeAnswer, ratingToGrade } from "./grade-answer";
 
 describe("normalizeAnswer", () => {
   it("trims, lowercases, collapses whitespace and strips trailing punctuation", () => {
@@ -38,5 +38,14 @@ describe("gradeToRating", () => {
     expect(gradeToRating("correct")).toBe("good");
     expect(gradeToRating("close")).toBe("hard");
     expect(gradeToRating("wrong")).toBe("again");
+  });
+});
+
+describe("ratingToGrade", () => {
+  it("maps flashcard ratings to grades", () => {
+    expect(ratingToGrade("again")).toBe("wrong");
+    expect(ratingToGrade("hard")).toBe("close");
+    expect(ratingToGrade("good")).toBe("correct");
+    expect(ratingToGrade("easy")).toBe("correct");
   });
 });
