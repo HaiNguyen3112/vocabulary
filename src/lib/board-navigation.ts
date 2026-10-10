@@ -2,8 +2,17 @@ export type BoardArrowKey = "ArrowUp" | "ArrowDown" | "ArrowLeft" | "ArrowRight"
 
 const ARROW_KEYS: readonly string[] = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
 
-export function isBoardArrowKey(key: string): key is BoardArrowKey {
+function isBoardArrowKey(key: string): key is BoardArrowKey {
   return ARROW_KEYS.includes(key);
+}
+
+type KeyWithModifiers = Pick<ShortcutEvent, "key" | "ctrlKey" | "metaKey" | "altKey">;
+
+const hasModifier = (event: KeyWithModifiers) => event.ctrlKey || event.metaKey || event.altKey;
+
+/** The arrow to move by, or null — Alt/Cmd/Ctrl + arrow belong to the browser (Back, Forward…). */
+export function boardMoveKey(event: KeyWithModifiers): BoardArrowKey | null {
+  return !hasModifier(event) && isBoardArrowKey(event.key) ? event.key : null;
 }
 
 /**
@@ -46,7 +55,13 @@ export type ShortcutEvent = {
 
 /** Plain R deals a new board — not Ctrl/Cmd+R (reload) and not while typing. */
 export function isNewBoardShortcut(event: ShortcutEvent): boolean {
-  if (event.ctrlKey || event.metaKey || event.altKey) return false;
+  if (hasModifier(event)) return false;
   if (isTypingTarget(event.targetTag, event.targetEditable)) return false;
   return event.key === "r" || event.key === "R";
+}
+
+/** Esc drops a half-made pair, wherever focus is (Safari does not focus clicked buttons). */
+export function isClearSelectionShortcut(event: ShortcutEvent): boolean {
+  if (hasModifier(event) || isTypingTarget(event.targetTag, event.targetEditable)) return false;
+  return event.key === "Escape";
 }

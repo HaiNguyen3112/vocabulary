@@ -78,6 +78,8 @@ function buildTheme(scheme: ColorScheme): ThemeConfig {
     },
     components: {
       Table: { headerBg: palette.bg, rowHoverBg: palette.cardSelected },
+      // The dark override above would put dark text on the tooltip's grey — keep tooltips light-on-dark.
+      ...(scheme === "dark" && { Tooltip: { colorTextLightSolid: "#ffffff" } }),
     },
   };
 }

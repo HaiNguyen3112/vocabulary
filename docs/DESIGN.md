@@ -39,6 +39,7 @@ Change a colour in that order. Components only use `$color-*` / antd tokens, so 
 ## Dark mode
 
 - Preference `system | light | dark` in `localStorage["study-vocabulary:color-scheme"]` (Zustand store); the top-bar toggle cycles it.
+- Dark antd theme sets `colorTextLightSolid: #0f1420` (dark text on the light primary buttons) but `#ffffff` for Tooltip.
 - `data-theme` on `<html>` switches the CSS variables; an inline script in `index.html` sets it before first paint.
 
 ## Principles

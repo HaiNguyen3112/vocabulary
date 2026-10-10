@@ -19,7 +19,7 @@ shared/                # contracts used by BOTH client and server (no React, no 
 src/
   main.tsx, App.tsx    # providers: antd ConfigProvider + App, BrowserRouter
   app/                 # AppLayout (top bar + bottom tab bar), ThemeToggle, nav-items (ROUTES, NAV_ITEMS, TAB_ITEMS), app-routes
-  pages/               # thin routes: study-page, words-page, word-detail-page, word-edit-page
+  pages/               # thin routes: study-page, words-page (list + :id), word-edit-page
   features/
     study/             # StudyWorkspace → StudySession → MatchBoard, useMatchGame, BoardProgress, use-board-keyboard
     words/             # WordsWorkspace (split view ≥992px / table ≥600px / WordCardList <600px, filters in URL via

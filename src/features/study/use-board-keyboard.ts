@@ -1,5 +1,12 @@
 import { useEffect, useRef, type KeyboardEvent } from "react";
-import { isBoardArrowKey, isNewBoardShortcut, isTypingTarget, moveBoardFocus } from "@/lib/board-navigation";
+import {
+  boardMoveKey,
+  isClearSelectionShortcut,
+  isNewBoardShortcut,
+  isTypingTarget,
+  moveBoardFocus,
+  type ShortcutEvent,
+} from "@/lib/board-navigation";
 import type { MatchCard } from "@/lib/match-board";
 
 type BoardKeyboardOptions = {
@@ -18,12 +25,24 @@ function isOutsideShortcutScope(target: EventTarget | null): boolean {
   );
 }
 
+function toShortcutEvent(event: globalThis.KeyboardEvent): ShortcutEvent {
+  const target = event.target instanceof HTMLElement ? event.target : null;
+  return {
+    key: event.key,
+    ctrlKey: event.ctrlKey,
+    metaKey: event.metaKey,
+    altKey: event.altKey,
+    targetTag: target?.tagName ?? null,
+    targetEditable: target?.isContentEditable ?? false,
+  };
+}
+
 /**
  * Arrow keys move focus between cards (skipping matched ones), Esc drops a half-made pair.
  * Arrows pressed outside the board (e.g. after the focused pair was matched) focus the first card.
  */
 export function useBoardKeyboard(options: BoardKeyboardOptions) {
-  const { cards, columns, isAvailable, onClearSelection } = options;
+  const { cards, columns, isAvailable } = options;
   const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const latestRef = useRef(options);
 
@@ -32,22 +51,24 @@ export function useBoardKeyboard(options: BoardKeyboardOptions) {
   });
 
   const handleBoardKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Escape") {
-      onClearSelection();
-      return;
-    }
-    if (!isBoardArrowKey(event.key)) return;
+    const key = boardMoveKey(event);
+    if (!key) return;
     event.preventDefault();
     const from = cardRefs.current.indexOf(event.target as HTMLButtonElement);
-    cardRefs.current[moveBoardFocus(from, event.key, columns, cards.length, isAvailable)]?.focus();
+    cardRefs.current[moveBoardFocus(from, key, columns, cards.length, isAvailable)]?.focus();
   };
 
   useEffect(() => {
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.defaultPrevented || !isBoardArrowKey(event.key) || isOutsideShortcutScope(event.target)) return;
-      if (cardRefs.current.includes(event.target as HTMLButtonElement)) return;
-      const { cards: current, columns: currentColumns, isAvailable: available } = latestRef.current;
-      const next = moveBoardFocus(-1, event.key, currentColumns, current.length, available);
+      if (event.defaultPrevented || isOutsideShortcutScope(event.target)) return;
+      const latest = latestRef.current;
+      if (isClearSelectionShortcut(toShortcutEvent(event))) {
+        latest.onClearSelection();
+        return;
+      }
+      const key = boardMoveKey(event);
+      if (!key || cardRefs.current.includes(event.target as HTMLButtonElement)) return;
+      const next = moveBoardFocus(-1, key, latest.columns, latest.cards.length, latest.isAvailable);
       if (next === -1) return;
       event.preventDefault();
       cardRefs.current[next]?.focus();
@@ -70,16 +91,7 @@ export function useNewBoardShortcut(onNewBoard: () => void, isEnabled: boolean) 
   useEffect(() => {
     const handleKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.repeat || !latestRef.current.isEnabled || isOutsideShortcutScope(event.target)) return;
-      const target = event.target instanceof HTMLElement ? event.target : null;
-      const isShortcut = isNewBoardShortcut({
-        key: event.key,
-        ctrlKey: event.ctrlKey,
-        metaKey: event.metaKey,
-        altKey: event.altKey,
-        targetTag: target?.tagName ?? null,
-        targetEditable: target?.isContentEditable ?? false,
-      });
-      if (isShortcut) latestRef.current.onNewBoard();
+      if (isNewBoardShortcut(toShortcutEvent(event))) latestRef.current.onNewBoard();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);

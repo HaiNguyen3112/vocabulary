@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isNewBoardShortcut, moveBoardFocus } from "./board-navigation";
+import { boardMoveKey, isClearSelectionShortcut, isNewBoardShortcut, moveBoardFocus } from "./board-navigation";
 
 const all = () => true;
 
@@ -58,5 +58,42 @@ describe("isNewBoardShortcut", () => {
 
   it("ignores other keys", () => {
     expect(isNewBoardShortcut({ ...base, key: "t" })).toBe(false);
+  });
+});
+
+describe("boardMoveKey", () => {
+  const plain = { key: "ArrowLeft", ctrlKey: false, metaKey: false, altKey: false };
+
+  it("returns plain arrow keys", () => {
+    expect(boardMoveKey(plain)).toBe("ArrowLeft");
+    expect(boardMoveKey({ ...plain, key: "ArrowDown" })).toBe("ArrowDown");
+  });
+
+  it("leaves browser shortcuts alone (Alt+← / Cmd+← = Back)", () => {
+    expect(boardMoveKey({ ...plain, altKey: true })).toBeNull();
+    expect(boardMoveKey({ ...plain, metaKey: true })).toBeNull();
+    expect(boardMoveKey({ ...plain, ctrlKey: true })).toBeNull();
+  });
+
+  it("ignores other keys", () => {
+    expect(boardMoveKey({ ...plain, key: "a" })).toBeNull();
+  });
+});
+
+describe("isClearSelectionShortcut", () => {
+  const base = { key: "Escape", ctrlKey: false, metaKey: false, altKey: false, targetTag: "BODY", targetEditable: false };
+
+  it("accepts Esc wherever focus is, outside fields", () => {
+    expect(isClearSelectionShortcut(base)).toBe(true);
+    expect(isClearSelectionShortcut({ ...base, targetTag: "BUTTON" })).toBe(true);
+  });
+
+  it("ignores Esc while typing or with modifiers", () => {
+    expect(isClearSelectionShortcut({ ...base, targetTag: "INPUT" })).toBe(false);
+    expect(isClearSelectionShortcut({ ...base, metaKey: true })).toBe(false);
+  });
+
+  it("ignores other keys", () => {
+    expect(isClearSelectionShortcut({ ...base, key: "r" })).toBe(false);
   });
 });
