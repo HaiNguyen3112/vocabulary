@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { NAV_ITEMS, ROUTES, findNavKey } from "@/app/nav-items";
+import { LearnerMenu } from "./learner-menu";
 import { ThemeToggle } from "./theme-toggle";
 import styles from "./top-bar.module.scss";
 
@@ -25,6 +26,7 @@ export function TopBar() {
           </Link>
         ))}
       </nav>
+      <LearnerMenu />
       <ThemeToggle />
     </header>
   );
