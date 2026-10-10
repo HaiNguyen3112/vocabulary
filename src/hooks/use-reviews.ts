@@ -1,8 +1,9 @@
 import { useEffect } from "react";
+import type { WordReview } from "@shared/review";
 import { useLearnerStore } from "@/store/learner-store";
 import { useReviewsStore } from "@/store/reviews-store";
 
-const NO_REVIEWS = {};
+const NO_REVIEWS: Record<string, WordReview> = {};
 
 /** Review state of the signed-in learner; loads on first use and resets when the learner changes. */
 export function useReviews() {
