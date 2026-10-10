@@ -14,7 +14,7 @@ const pwa = VitePWA({
   registerType: "prompt",
   injectRegister: false,
   devOptions: { enabled: false },
-  includeAssets: ["favicon.ico", "logo192.png"],
+  includeAssets: ["favicon.ico", "apple-touch-icon.png"],
   manifest: {
     id: "/",
     name: "Studying Vocabulary",
@@ -24,7 +24,7 @@ const pwa = VitePWA({
     start_url: "/",
     scope: "/",
     display: "standalone",
-    theme_color: "#1677ff",
+    theme_color: "#1d3a8a",
     background_color: "#f5f7fb",
     icons: [
       { src: "logo192.png", sizes: "192x192", type: "image/png" },
