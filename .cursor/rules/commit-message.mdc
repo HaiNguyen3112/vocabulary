@@ -1,0 +1,9 @@
+---
+description: Conventional Commits for this repo
+alwaysApply: true
+---
+
+# Commit messages
+
+Follow `.cursorrules`: `type(scope): subject` ≤72 chars, imperative, English, focus on why.
+Scopes: `study`, `words`, `import`, `api`, `db`, `ui`, `deploy`.

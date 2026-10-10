@@ -1,0 +1,41 @@
+# Commit messages (Generate Commit Message + agents)
+
+When generating a Git commit message for this repository, follow **Conventional Commits** exactly.
+
+## Format
+
+```
+<type>(<scope>): <subject>
+
+[optional body]
+```
+
+- **One subject line** only by default (≤72 characters).
+- Subject: imperative mood, lowercase after the colon, **no trailing period**.
+- Focus on **why** / outcome — not a file list or diff restatement.
+- Body: only if needed; short bullets; wrap ~72 chars.
+- Language: **English** for type/scope/subject (matches code identifiers).
+
+## Types (pick one)
+
+| type | when |
+|------|------|
+| `feat` | new user-facing capability |
+| `fix` | bug fix |
+| `refactor` | change structure, same behavior |
+| `docs` | docs / comments only |
+| `style` | formatting, no logic change |
+| `test` | tests only |
+| `chore` | tooling, deps, config, housekeeping |
+| `perf` | performance |
+| `build` | build system / bundler |
+
+## Scope (optional but preferred)
+
+Short area: `study`, `words`, `import`, `api`, `db`, `ui`, `deploy`.
+
+## Do not
+
+- Do not use `Updated files`, `Various changes`, or vague subjects.
+- Do not paste a changelog of every file.
+- Do not wrap the whole message in markdown fences or quotes.

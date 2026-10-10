@@ -1,0 +1,14 @@
+---
+description: Enforce modular folder structure
+alwaysApply: true
+---
+
+# Modular folder structure
+
+- Routes → `src/pages/` (thin)
+- Interactive flows → `src/features/<domain>/`
+- Pure logic (shuffle, filter, board, Excel row parsing) → `src/lib/`
+- Server data cache → `src/store/`
+- Types → `src/types/`; enums / thresholds → `src/constants/`
+- Move to global only when ≥ 2 features share it
+- No barrel `index.ts` for components

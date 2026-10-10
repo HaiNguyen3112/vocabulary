@@ -1,0 +1,34 @@
+@use "../../styles/tokens" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  margin-bottom: $space-lg;
+}
+
+.back {
+  align-self: flex-start;
+  padding-left: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  margin: 0 !important;
+}
+
+.extra {
+  display: flex;
+  gap: $space-sm;
+}

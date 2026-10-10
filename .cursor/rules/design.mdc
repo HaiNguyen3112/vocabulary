@@ -1,0 +1,14 @@
+---
+description: Design system — Ant Design + theme tokens
+globs: ["**/*.tsx", "**/*.scss"]
+alwaysApply: false
+---
+
+# Design system — Study Vocabulary
+
+- Ant Design 5 components; theme via `ConfigProvider` with tokens from `src/styles/theme.ts`.
+- SCSS modules per component (`*.module.scss`); shared values from `src/styles/_tokens.scss`.
+- Shell: fixed sider (≥lg), collapsible to 0 on mobile; content max-width.
+- Category colours from `CATEGORY_COLOR` (`src/constants/categories.ts`) — never inline.
+- Mobile-first: the study board must work at 360px width.
+- Docs: `docs/DESIGN.md`

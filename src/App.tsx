@@ -1,54 +1,19 @@
-import React from "react";
-import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { Layout, Menu } from "antd";
-import {
-  HomeOutlined,
-  ShoppingOutlined,
-  UploadOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
-import VocabularyStudying from "./component/vocabularyStudying/VocabularyStudying";
-import ShoppingComponent from "./component/shopping/ShoppingComponent";
-import ImageUpload from "./component/upload-image/UploadImage";
-import WordList from "./component/word-list/WordList";
-import style from "./App.module.scss";
+import { App as AntApp, ConfigProvider } from "antd";
+import { BrowserRouter } from "react-router-dom";
+import { AppLayout } from "@/app/app-layout";
+import { AppRoutes } from "@/app/app-routes";
+import { appTheme } from "@/styles/theme";
 
-const { Sider, Content } = Layout;
-
-const App: React.FC = () => {
+export default function App() {
   return (
-    <Router>
-      <Layout className={style.app}>
-        <Sider className={style.sidebar} breakpoint="lg" collapsedWidth="0">
-          <Menu mode="inline">
-            <Menu.Item key="1" icon={<HomeOutlined />}>
-              <Link to="/">Vocabulary Studying</Link>
-            </Menu.Item>
-            {/* <Menu.Item key="3" icon={<ShoppingOutlined />}>
-              <Link to="/shopping">Shopping</Link>
-            </Menu.Item>
-            <Menu.Item key="4" icon={<UploadOutlined />}>
-              <Link to="/upload">Upload Image</Link>
-            </Menu.Item> */}
-            <Menu.Item key="5" icon={<PlusOutlined />}>
-              <Link to="/vocabulary-management">Vocabulary Management</Link>
-            </Menu.Item>
-          </Menu>
-        </Sider>
-        <Layout className={style.siteLayout}>
-          <Content className={style.mainContent}>
-            <Routes>
-              <Route path="/" element={<VocabularyStudying />} />
-              <Route path="/vocabulary" element={<VocabularyStudying />} />
-              <Route path="/shopping" element={<ShoppingComponent />} />
-              <Route path="/upload" element={<ImageUpload />} />
-              <Route path="/vocabulary-management" element={<WordList />} />
-            </Routes>
-          </Content>
-        </Layout>
-      </Layout>
-    </Router>
+    <ConfigProvider theme={appTheme}>
+      <AntApp>
+        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AppLayout>
+            <AppRoutes />
+          </AppLayout>
+        </BrowserRouter>
+      </AntApp>
+    </ConfigProvider>
   );
-};
-
-export default App;
+}

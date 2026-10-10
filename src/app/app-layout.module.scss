@@ -1,0 +1,43 @@
+@use "../styles/tokens" as *;
+
+.app {
+  min-height: 100vh;
+}
+
+.sider {
+  position: fixed !important;
+  inset: 0 auto 0 0;
+  height: 100vh;
+  z-index: 1000;
+
+  // Mobile hamburger: keep it in the top gutter, above the page toolbar.
+  :global(.ant-layout-sider-zero-width-trigger) {
+    top: $space-sm;
+  }
+}
+
+.menu {
+  height: 100%;
+  padding: $space-sm 0;
+}
+
+.siteLayout {
+  margin-left: $sider-width;
+}
+
+.content {
+  width: 100%;
+  max-width: $content-max-width;
+  margin: 0 auto;
+  padding: $space-lg $space-md;
+}
+
+@media (max-width: $bp-lg) {
+  .siteLayout {
+    margin-left: 0;
+  }
+
+  .content {
+    padding-top: $space-lg * 2;
+  }
+}

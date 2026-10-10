@@ -1,0 +1,13 @@
+@use "./tokens" as *;
+
+body {
+  margin: 0;
+  background: $color-bg;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Multiline definitions are stored with real line breaks. */
+.pre-line {
+  white-space: pre-line;
+}

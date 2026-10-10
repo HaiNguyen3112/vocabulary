@@ -1,0 +1,40 @@
+---
+description: Module structure and layered architecture
+alwaysApply: true
+---
+
+# Architecture
+
+Full map: [docs/PROJECT.md](../../docs/PROJECT.md).
+
+## Layers
+
+```txt
+shared/             contracts + validation (client & server)
+pages/              thin routes — compose only
+features/<domain>/  study | words
+app/                shell: layout, nav, routes
+hooks/              cross-feature hooks (external sync only)
+lib/                pure engines (no React) — tested with Vitest
+api/                fetch client + endpoint helpers
+store/              Zustand cache over the API
+constants/          enums + named thresholds
+types/              shared contracts
+server/             Hono API + MongoDB (source of truth)
+```
+
+## Rules
+
+- **No** cross-imports between pages or between features (share via `lib/`, `features/shared/`).
+- UI components ≤ **200 lines**; pages only compose.
+- TypeScript `strict`.
+- Business logic in `lib/` or feature hooks — not long workflows inside JSX.
+- English identifiers only.
+
+## State boundaries
+
+| Kind | Where |
+|------|-------|
+| Local UI | component `useState` |
+| Words (server data) | `store/words-store` |
+| Derived (filters, board) | compute in render / `lib/` |

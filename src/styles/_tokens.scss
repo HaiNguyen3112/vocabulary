@@ -1,0 +1,30 @@
+// Mirror of src/styles/theme.ts — see docs/DESIGN.md.
+$color-primary: #1677ff;
+$color-bg: #f5f7fb;
+$color-surface: #ffffff;
+$color-border: #d9d9d9;
+$color-text-muted: #8c8c8c;
+
+// Study board
+$color-word: #d46b08;
+$color-definition: #1d39c4;
+$color-card-selected: #e6f4ff;
+$color-correct: #b7eb8f;
+$color-wrong: #ffa39e;
+$board-gradient: linear-gradient(135deg, #e0f2fe 0%, #fce7f3 50%, #ede9fe 100%);
+
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$radius: 8px;
+
+$sider-width: 200px;
+$content-max-width: 1080px;
+$board-max-width: 1000px;
+
+$bp-mobile: 600px;
+$bp-small: 400px;
+$bp-lg: 992px;
+
+$motion-flash: 0.6s;

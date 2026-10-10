@@ -1,0 +1,13 @@
+---
+description: useEffect only for external sync
+alwaysApply: true
+---
+
+# useEffect
+
+`useEffect` synchronizes with **external systems** only (initial API load, timers, speech synthesis).
+
+- Do not use for derived state (filtering, mapping props → state)
+- Do not use for submit / navigation / reacting to a file being parsed — do it in the handler
+- Do not make the effect callback `async` — use inner async + cleanup flag
+- Declare all dependencies

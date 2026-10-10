@@ -1,0 +1,21 @@
+@use "../../styles/tokens" as *;
+
+.page {
+  max-width: 760px;
+}
+
+.form {
+  padding: $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: $space-sm;
+  padding-top: $space-md;
+  border-top: 1px solid $color-border;
+}

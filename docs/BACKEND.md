@@ -1,0 +1,84 @@
+# BACKEND.md — Hono API + MongoDB (same repo)
+
+Single-repo deploy: Vite SPA + Hono API + MongoDB Atlas. Replaces the old Firebase Realtime Database (no Firebase SDK anywhere now).
+
+## Setup
+
+```bash
+cp .env.example .env     # fill MONGODB_URI
+npm run dev              # Vite :5173 (proxies /api) + API :3001
+```
+
+| Key | Example |
+|-----|---------|
+| `MONGODB_URI` | `mongodb+srv://user:pass@….mongodb.net/?appName=…` (same Atlas cluster as bistro-hub) |
+| `MONGODB_DB` | `vocabulary` (default) |
+| `PORT` | `3001` (bistro-hub uses 3000) |
+
+**Never commit `.env`.**
+
+## Collection `words`
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `_id` | string | UUID (imported rows keep their Firebase key) |
+| `word` | string | as typed |
+| `wordKey` | string | `normalizeWordKey(word)` — indexed, duplicate checks |
+| `category` | `Category` | see `shared/categories.ts` |
+| `senses` | `WordSense[]` | `{ partOfSpeech: PartOfSpeech \| null, definition, examples: string[] }` — one per word type |
+| `familyId` | string? | words sharing it are related (word family); absent = none |
+| `createdAt` / `updatedAt` | Date | |
+
+Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, createdAt: -1 }`, `{ familyId: 1 }` sparse.
+
+**Word family:** the API exposes `relatedWordIds` (family minus self), computed in `server/services/families.ts`. Saving a word with `relatedWordIds` makes its family exactly that set: unselected members leave, selected words join (leaving their old family), families left with one member are dissolved. So links are two-way and transitive.
+
+## Endpoints
+
+| Method | Path | Body | Result |
+|--------|------|------|--------|
+| GET | `/api/health` | — | `{ ok, db: "mongo" }` or 503 |
+| GET | `/api/words?category=` | — | `{ words: Word[] }` newest first |
+| POST | `/api/words` | `WordInput` | `201 { word }` · `400` invalid · `409` exists |
+| PUT | `/api/words/:id` | `WordInput` | `200 { word }` · `400` · `404` · `409` spelling used by another word |
+| POST | `/api/words/bulk` | `{ words: WordInput[] }` (≤ 2000) | `201 { inserted, skipped }` · `400` with row number |
+
+`WordInput = { word, category, senses, relatedWordIds }`. All input goes through `parseWordInput` (`shared/word.ts`), which also accepts the flat shape `{ word, category, definition, partOfSpeech?, examples? }` (Excel rows) and splits legacy text like `"- nắm lấy (Verb)\n- vali (Noun)"` / `"…\nex: …"` into senses (`shared/legacy-definition.ts`).
+
+## Migrating from Firebase
+
+```bash
+npm run db:import-firebase
+```
+
+Reads `words.json` from the old RTDB over REST and inserts missing Firebase keys only — safe to re-run, never overwrites edits. Done once on 2026-10-10: 937 words imported.
+
+## Senses migration (done 2026-10-10)
+
+```bash
+npm run db:migrate-senses -- --dry   # preview
+npm run db:migrate-senses            # apply (idempotent)
+```
+
+Converted `definition: string` → `senses[]` for all 937 words (68 got a part of speech, 17 got examples, 8 split into several senses). The original collection is kept as `words_backup_before_senses`.
+
+## Word families (done 2026-10-10)
+
+```bash
+npm run db:link-families -- families.json [--dry]
+```
+
+Input `[{ base, members: [{ word, partOfSpeech, definition, example }] }]`: stored words are linked, missing members are created (category of the base word), overlapping families are merged. Idempotent. First run: 555 single words → 387 families, 450 existing words linked, 832 new words created (937 → 1769). Backup: `words_backup_before_families`.
+
+## Proofreading fixes (done 2026-10-10)
+
+The 937 original entries were proofread: 47 fixes (English spelling, Vietnamese typos, clearly wrong meanings such as oven = "lò nướng", wrong part of speech such as produce → verb, truncated idioms). Spelling fixes that collided with another entry were merged ("bugdet" into "budget"; the auto-created "transportation" into the corrected "transpotation"). Backup: `words_backup_before_fixes`.
+
+## Deploy
+
+- **VPS / Docker:** `npm run build && npm start` (serves `dist/` + `/api`).
+- **Vercel:** `server/vercel-entry.ts` is bundled to `api/index.js` by `npm run build:api` (commit it). `vercel.json` rewrites `/api/*` → `/api?__path=…`. Set `MONGODB_URI` (+ `MONGODB_DB`) in project env and allow Vercel egress in Atlas Network Access. Check `GET /api/health` after deploy.
+
+## Security note
+
+The API has no auth (same as the old public Firebase DB). Anyone with the URL can add words. Add auth before sharing the deployment publicly.

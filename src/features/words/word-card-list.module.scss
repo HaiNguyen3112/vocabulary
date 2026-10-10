@@ -1,0 +1,72 @@
+@use "../../styles/tokens" as *;
+
+.list {
+  :global(.ant-list-items) {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+  }
+}
+
+.card {
+  position: relative;
+  padding: $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  width: 100%;
+  padding: 0 $space-lg 0 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.word {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.related {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $space-xs;
+  margin-top: $space-sm;
+  padding-top: $space-sm;
+  border-top: 1px dashed $color-border;
+}
+
+.relatedItem {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: $color-primary;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.parts {
+  color: $color-text-muted;
+}
+
+.edit {
+  position: absolute;
+  top: $space-sm;
+  right: $space-sm;
+}

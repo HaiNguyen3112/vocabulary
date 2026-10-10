@@ -1,0 +1,34 @@
+---
+description: Code convention for Study Vocabulary
+alwaysApply: true
+---
+
+# Code convention
+
+## Restrict
+
+- Never build `useEffect` chains.
+- Avoid premature `useMemo` / `useCallback` without need.
+- Component file ≤ **200 lines**.
+- No Vietnamese identifiers for folders/files/types/vars/functions (UI copy / data OK).
+- No magic numbers for business thresholds — use named constants (`src/constants/`).
+- No `dangerouslySetInnerHTML` — render multiline text with `white-space: pre-line`.
+- No direct DOM manipulation (`querySelector`, `classList`) — drive UI from state.
+- No UI barrels (`index.ts` re-exporting components).
+
+## Enforce
+
+- Folders/files `kebab-case`; `PascalCase` components/types; `camelCase` values/hooks.
+- Handlers prefixed `handle*`; booleans `is`/`has`/`can`.
+- Theme tokens only — see `theme.mdc`.
+- `@ant-design/icons` only; no emoji in UI.
+- Exhaustive `switch` / `Record<Union, …>` on unions.
+- Every `setTimeout` started in a component is cleared on unmount.
+
+## Self-review
+
+- [ ] No effect chaining / derived state in effects
+- [ ] English identifiers
+- [ ] File ≤ 200 lines
+- [ ] Tokens from `src/styles/theme.ts` / `_tokens.scss`
+- [ ] `npm run typecheck && npm run typecheck:server && npm test` green

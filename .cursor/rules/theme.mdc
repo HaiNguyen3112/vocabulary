@@ -1,0 +1,20 @@
+---
+description: All styles must use theme tokens
+alwaysApply: true
+---
+
+# Theme tokens (mandatory)
+
+**Ant Design tokens:** [`src/styles/theme.ts`](../../src/styles/theme.ts)  
+**SCSS mirror:** [`src/styles/_tokens.scss`](../../src/styles/_tokens.scss)  
+**Docs:** [`docs/DESIGN.md`](../../docs/DESIGN.md)
+
+## Required
+
+- Colors / spacing / radius from tokens — not hardcoded hex in components.
+- Change brand color: update DESIGN.md → theme.ts → _tokens.scss.
+
+## Forbidden
+
+- Hardcoded hex in `.tsx` files or inline `style={{ color: "#…" }}`.
+- External image URLs for backgrounds (ship assets in `public/` or use gradients).

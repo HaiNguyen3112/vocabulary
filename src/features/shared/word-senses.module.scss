@@ -1,0 +1,24 @@
+@use "../../styles/tokens" as *;
+
+.senses {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.definition {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: $space-xs;
+}
+
+.examples {
+  margin: $space-xs 0 0;
+  padding-left: $space-lg;
+  color: $color-text-muted;
+  font-style: italic;
+}

@@ -1,0 +1,13 @@
+---
+description: Hono API + MongoDB ownership rules
+alwaysApply: true
+---
+
+# Backend (Hono + MongoDB)
+
+- Source of truth: MongoDB Atlas via `server/db/mongo.ts` — **not** Firebase / localStorage.
+- Connection string **only** from `MONGODB_URI` in `.env` — never commit secrets.
+- Routes stay thin; use `collections.*()` helpers and `server/services/*`.
+- Validate every request body on the server with `parseWordInput` (`shared/word.ts`) — never trust the client.
+- Map Mongo docs to API shapes in `server/services/mappers.ts` (`_id` → `id`).
+- FE talks only through `src/api/*` + Zustand cache — no DB SDK in `src/`.

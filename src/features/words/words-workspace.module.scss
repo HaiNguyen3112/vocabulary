@@ -1,0 +1,46 @@
+@use "../../styles/tokens" as *;
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.title {
+  margin: $space-sm 0 0 !important;
+}
+
+.count {
+  color: $color-text-muted;
+  font-weight: 400;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: $space-sm;
+}
+
+.filters,
+.actions {
+  display: flex;
+  gap: $space-sm;
+}
+
+.filters {
+  flex: 1;
+}
+
+@media (max-width: $bp-mobile) {
+  .toolbar {
+    flex-direction: column;
+  }
+
+  .actions {
+    justify-content: flex-end;
+  }
+}
+
+.row {
+  cursor: pointer;
+}

@@ -1,0 +1,52 @@
+@use "../../styles/tokens" as *;
+
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  white-space: normal;
+}
+
+.optionWord {
+  font-weight: 600;
+}
+
+.optionMeaning {
+  color: $color-text-muted;
+  font-size: 12px;
+  white-space: pre-line;
+}
+
+.selected {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-sm;
+  padding: $space-sm $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+}
+
+.cardWord {
+  font-weight: 600;
+}

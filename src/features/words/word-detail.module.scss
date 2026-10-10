@@ -1,0 +1,23 @@
+@use "../../styles/tokens" as *;
+
+.detail {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  max-width: 760px;
+}
+
+.section {
+  padding: $space-md;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+  background: $color-surface;
+}
+
+.label {
+  display: block;
+  margin-bottom: $space-sm;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

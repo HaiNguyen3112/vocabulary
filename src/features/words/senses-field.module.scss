@@ -1,0 +1,34 @@
+@use "../../styles/tokens" as *;
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+  margin-bottom: $space-md;
+}
+
+.sense {
+  padding: $space-sm $space-md 0;
+  border: 1px solid $color-border;
+  border-radius: $radius;
+}
+
+.senseHeader {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-bottom: $space-sm;
+}
+
+.index {
+  font-weight: 600;
+}
+
+.posSelect {
+  flex: 1;
+  max-width: 200px;
+}
+
+.examples {
+  margin-bottom: $space-sm;
+}
