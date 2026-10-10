@@ -5,7 +5,7 @@ await esbuild.build({
   outfile: "api/index.js",
   bundle: true,
   platform: "node",
-  target: "node20",
+  target: "node24",
   format: "esm",
   packages: "external",
   logLevel: "info",
