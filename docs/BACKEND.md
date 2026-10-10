@@ -33,6 +33,14 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 
 **Word family:** the API exposes `relatedWordIds` (family minus self), computed in `server/services/families.ts`. Saving a word with `relatedWordIds` makes its family exactly that set: unselected members leave, selected words join (leaving their old family), families left with one member are dissolved. So links are two-way and transitive.
 
+## Collections `learners` and `reviews`
+
+`learners`: `{ _id (UUID), userId (lowercased), userIdKey (normalizeUserIdKey), name, createdAt }`. Index `{ userIdKey: 1 }` **unique** (duplicate insert -> Mongo code 11000 -> 409).
+
+`reviews` (one per learner + word, FSRS state): `{ _id, learnerId, wordId, card: StoredCard, dueAt, firstReviewedAt, updatedAt }`. Index `{ learnerId: 1, dueAt: 1 }`. Written by an upsert in `server/services/reviews.ts` (`firstReviewedAt` set only on insert); scheduling lives in `server/services/scheduler.ts`.
+
+**Deleting a word must also delete its `reviews`** (`{ wordId }`). There is no delete endpoint yet, so nothing does this today.
+
 ## Endpoints
 
 | Method | Path | Body | Result |
@@ -42,6 +50,10 @@ Indexes: `{ wordKey: 1 }` (not unique — legacy duplicates), `{ category: 1, cr
 | POST | `/api/words` | `WordInput` | `201 { word }` · `400` invalid · `409` exists |
 | PUT | `/api/words/:id` | `WordInput` | `200 { word }` · `400` · `404` · `409` spelling used by another word |
 | POST | `/api/words/bulk` | `{ words: WordInput[] }` (≤ 2000) | `201 { inserted, skipped }` · `400` with row number |
+| POST | `/api/learners` | `{ userId, name }` | `201 { learner }` · `400` · `409` User ID already exists |
+| GET | `/api/learners/by-user-id/:userId` | — | `{ learner }` (case-insensitive) · `404` |
+| GET | `/api/learners/:learnerId/reviews` | — | `{ reviews: WordReview[] }` · `404` Learner not found |
+| POST | `/api/learners/:learnerId/reviews` | `{ wordId, rating }` | `{ review }` · `400` · `404` Learner/Word not found |
 
 `WordInput = { word, category, senses, relatedWordIds }`. All input goes through `parseWordInput` (`shared/word.ts`), which also accepts the flat shape `{ word, category, definition, partOfSpeech?, examples? }` (Excel rows) and splits legacy text like `"- nắm lấy (Verb)\n- vali (Noun)"` / `"…\nex: …"` into senses (`shared/legacy-definition.ts`).
 

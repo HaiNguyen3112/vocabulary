@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { connectToMongoDB, getDb } from "./db/mongo";
+import { learnerRoutes } from "./routes/learners";
 import { wordRoutes } from "./routes/words";
 
 export function createApp() {
@@ -35,6 +36,7 @@ export function createApp() {
   });
 
   app.route("/api/words", wordRoutes);
+  app.route("/api/learners", learnerRoutes);
 
   return app;
 }
